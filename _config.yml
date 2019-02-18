@@ -82,8 +82,8 @@ analytics:
 author:
   name             : "Thibaut Montes"
   avatar           : "profile.png"
-  bio              : "Your biography for the left-hand sidebar"
-  location         : "Paris"
+  bio              : "PhD candidate in Numerical Probability"
+  location         : "LPSM, Paris"
   employer         :
   googlescholar    : # "http://yourfullgooglescholarurl.com"
   email            :
@@ -100,7 +100,7 @@ author:
   keybase          :
   instagram        :
   lastfm           :
-  linkedin         :
+  linkedin         : 
   orcid            : #"http://orcid.org/yourorcidurl"
   pinterest        :
   soundcloud       :

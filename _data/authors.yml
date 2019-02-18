@@ -3,16 +3,16 @@
 Name Name:
   name        : "Thibaut Montes"
   uri         : "http://name.com"
-  email       : "montes.thibaut@gmail.com"
+  email       : "montest@lpsm.paris"
   bio         : "To be completed."
   avatar      : "bio-photo-2.jpg"
   twitter     : "name"
   google_plus : "Name"
 
-Name2 Name2:
-  name        : "Name2 Name2"
-  email       : "name2@name2.com"
-  bio         : "I ordered what?"
-  avatar      : "bio-photo.jpg"
-  twitter     : "name2"
-  google_plus : "Name"
+# Name2 Name2:
+#   name        : "Name2 Name2"
+#   email       : "name2@name2.com"
+#   bio         : "I ordered what?"
+#   avatar      : "bio-photo.jpg"
+#   twitter     : "name2"
+#   google_plus : "Name"
