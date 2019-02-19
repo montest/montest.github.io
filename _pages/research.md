@@ -1,6 +1,6 @@
 ---
 layout: archive
-title: "Research"
+title: "Research Projects"
 permalink: /research/
 author_profile: true
 ---
@@ -11,6 +11,20 @@ author_profile: true
 
 {% include base_path %}
 
+## Projects in progress
+
+### Optimal Quantization
+
+#### New error bounds for optimal quantization based cubature formula and weak error development (Paper in progress).
+#### Build a hybrid quantization tree for a Randomized Heston Model using Product Recursive Quantization (Paper in progress).
+#### Optimize existing methods in order to build optimal quantizers: Fixed Point Research Acceleration.
+
+### Multilevel Monte-Carlo
+
+#### Optimizing xVA's risk (counterparty risk) computation using Multilevel Monte-Carlo that allows us to kill the bias while reducing the variance of the estimator.  
+
+
+<!-- 
 {% for post in site.publications reversed %}
   {% include archive-single.html %}
-{% endfor %}
+{% endfor %} -->

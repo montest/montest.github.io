@@ -9,8 +9,9 @@ redirect_from:
 
 {% include base_path %}
 
-Education
-======
+
+## Education
+<!-- ====== -->
 * Ph.D CIFRE in Numerical Probability, Laboratoire de Probabilité, Statistiques et Modélisation (LPSM), Pierre and Marie Curie University (Paris VI), Mar 2017 to Mar 2020 (expected).
 
 * Research Master in Probability and Finance, Pierre and Marie Curie University (Paris VI), Sep 2014 to Jun 2016.
@@ -19,10 +20,10 @@ Education
 
  I spent the 2013-2014 academic year on exchange with the ERASMUS program in the Lund University's mathematics department, Lund, Sweden.
 
-Professional Experience
-======
-* Quantitative Analyst at The Independent Calculation Agent, Paris, France, from Nov 2016.
 
+## Professional Experience
+<!-- ====== -->
+* Quantitative Analyst at The Independent Calculation Agent, Paris, France, from Nov 2016.
   As PhD candidate in collaboration with The ICA, I worked on the following projects:
     * Optimizing the ICA's analytic library using Optimal Quantization based methods (Pricing of Exotic Options in the interest rate world).
     * Identifying and \textit{killing} bias in the xVA computation using Multilevel Monte-Carlo methods.
