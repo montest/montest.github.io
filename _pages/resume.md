@@ -14,6 +14,7 @@ Education
 * Ph.D CIFRE in Numerical Probability, Laboratoire de Probabilité, Statistiques et Modélisation (LPSM), Pierre and Marie Curie University (Paris VI), Mar 2017 to Mar 2020 (expected)
 * M.S. in Probability and Finance, Pierre and Marie Curie University (Paris VI), Sep 2014 to Jun 2016
 * B.S. in Mathematics, Aix-Marseille University, Sep 2011 to Jun 2014
+I spent the 2013-2014 academic year on exchange with the ERASMUS program in the Lund University's mathematics department, Lund, Sweden.
 
 Professional Experience
 ======
