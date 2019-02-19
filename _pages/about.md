@@ -9,7 +9,7 @@ redirect_from:
 ---
 
 
-I am currently a CIFRE PhD candidate in Numerical Probabilty under the direction of [Gilles Pagès](http://www.lpsm.paris/dw/doku.php?id=users:pages:index) and [Vincent Lemaire](https://www.lpsm.paris/pageperso/lemaire/) at the [Laboratoire de Probabilités, Statistique et Modélisation](https://www.lpsm.paris/) and [Jean-Michel Fayolle](https://fr.linkedin.com/in/jean-michel-fayolle-68964930) at [the Independent Calculation Agent](https://www.the-ica.com/), a Fintech whose aim is to efficiently compute risk measures linked to counterparty default.
+I am currently a Ph.D CIFRE candidate in Numerical Probabilty under the direction of [Gilles Pagès](http://www.lpsm.paris/dw/doku.php?id=users:pages:index) and [Vincent Lemaire](https://www.lpsm.paris/pageperso/lemaire/) at the [Laboratoire de Probabilités, Statistique et Modélisation](https://www.lpsm.paris/) and [Jean-Michel Fayolle](https://fr.linkedin.com/in/jean-michel-fayolle-68964930) at [the Independent Calculation Agent](https://www.the-ica.com/), a Fintech whose aim is to efficiently compute risk measures linked to counterparty default.
 
  My research subjects are Optimal Quantization, also known as K-means, and Multilevel Monte-Carlo methods.
 
