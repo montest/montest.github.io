@@ -11,12 +11,10 @@ author_profile: true
 
 {% include base_path %}
 
-<!-- ## Optimal Quantization -->
-
-
 {% for post in site.research %}
   {% include archive-single.html %}
 {% endfor %}
+<!-- ## Optimal Quantization -->
 
 <!-- ### New error bounds for optimal quantization based cubature formula and weak error development (Paper in progress).
 ### Build a hybrid quantization tree for a Randomized Heston Model using Product Recursive Quantization (Paper in progress).
