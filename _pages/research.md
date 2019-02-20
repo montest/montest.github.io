@@ -13,6 +13,11 @@ author_profile: true
 
 ## Optimal Quantization
 
+
+{% for post in site.publications reversed %}
+  {% include archive-single.html %}
+{% endfor %}
+
 ### New error bounds for optimal quantization based cubature formula and weak error development (Paper in progress).
 ### Build a hybrid quantization tree for a Randomized Heston Model using Product Recursive Quantization (Paper in progress).
 ### Optimize existing methods in order to build optimal quantizers: Fixed Point Research Acceleration.
@@ -22,7 +27,4 @@ author_profile: true
 ### Optimizing xVA's risk (counterparty risk) computation using Multilevel Monte-Carlo that allows us to kill the bias while reducing the variance of the estimator.  
 
 
-<!-- 
-{% for post in site.publications reversed %}
-  {% include archive-single.html %}
-{% endfor %} -->
+
