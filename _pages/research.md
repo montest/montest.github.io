@@ -14,7 +14,7 @@ author_profile: true
 ## Optimal Quantization
 
 
-{% for post in site.publications reversed %}
+{% for post in site.research reversed %}
   {% include archive-single.html %}
 {% endfor %}
 
