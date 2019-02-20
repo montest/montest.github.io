@@ -1,7 +1,7 @@
 ---
 title: "New weak error bounds and developments for Optimal Quantization based cubature formula"
-collection: research
-permalink: /research/weak-error-cubature
+collection: publications
+permalink: /publication/weak-error-cubature
 excerpt: 'We introduce new error bounds in dimension one for optimal quantization based cubature formula for a class of function that allows us to reach weak error of order two. This new results use deeply the local behaviors of optimal quantizers as well as Lr-Ls mismatch distortion results.'
 date: In progress
 <!-- venue: 'Journal 1' -->
