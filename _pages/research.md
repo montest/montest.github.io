@@ -11,7 +11,7 @@ author_profile: true
 
 {% include base_path %}
 
-{% for post in site.talks %}
+{% for post in site.publications %}
   {% include archive-single.html %}
 {% endfor %}
 <!-- ## Optimal Quantization -->
