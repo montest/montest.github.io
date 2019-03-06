@@ -187,7 +187,6 @@ collections:
   research:
     output: true
     permalink: /:collection/:path/
-    published: false
 
 
 # Defaults
@@ -228,15 +227,6 @@ defaults:
       author_profile: true
       share: true
       comments: true
-  # _research
-  - scope:
-      path: ""
-      type: research
-    values:
-      layout: single
-      author_profile: true
-      share: false
-      comments: false
   # _portfolio
   - scope:
       path: ""
