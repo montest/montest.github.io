@@ -3,9 +3,16 @@ main:
 
   - title: "Resume"
     url: /resume/
+  
+  - title: "Publications"
+    url: /publications/
+
+  - title: "Talks"
+    url: /talks/
 
   - title: "Research"
     url: /research/
+
     
   # - title: "Guide"
   #   url: /markdown/
