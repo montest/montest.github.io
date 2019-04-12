@@ -12,4 +12,4 @@ I present new weak error bounds and expansion in dimension one for optimal quant
 
 [Presentation accessible here!](https://montest.github.io/files/presentation_newerrorbound.pdf)
 
-Original paper accessible [here](https://montest.github.io/files/NewErrorBound.pdf) or on ArXiV [here](https://arxiv.org/abs/1903.10330)!
+Original paper accessible [here](https://montest.github.io/files/NewErrorBound.pdf) or on arXiv [here](https://arxiv.org/abs/1903.10330)!
