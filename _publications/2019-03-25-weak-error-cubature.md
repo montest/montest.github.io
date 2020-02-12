@@ -5,7 +5,7 @@ permalink: /publications/2019-03-25-weak-error-cubature
 excerpt: 'We introduce new error bounds in dimension one for optimal quantization based cubature formula for a class of function that allows us to reach weak error of order two. This new results use deeply the local behaviors of optimal quantizers as well as Lr-Ls mismatch distortion results.'
 date: 2019-03-25
 paperurl: 'https://montest.github.io/files/NewErrorBound.pdf'
-venue: 'Submitted to Journal of Computational and Applied Mathematics'
+venue: 'Journal of Computational and Applied Mathematics'
 ---
 
 This paper is a joined work with [Vincent Lemaire](https://www.lpsm.paris/pageperso/lemaire/) and [Gilles Pagès](http://www.lpsm.paris/dw/doku.php?id=users:pages:index).

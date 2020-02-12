@@ -12,6 +12,6 @@ I present new weak error bounds and expansion in dimension one for optimal quant
 
 This paper is a joined work with [Vincent Lemaire](https://www.lpsm.paris/pageperso/lemaire/) and [Gilles Pagès](http://www.lpsm.paris/dw/doku.php?id=users:pages:index).
 
-Presentation accessible [here](https://montest.github.io/files/presentation_newerrorbound.pdf)!
+Presentation accessible [here](https://montest.github.io/files/presentation_pont_newerrorbound.pdf)!
 
 Original paper accessible [here](https://montest.github.io/files/NewErrorBound.pdf) or on arXiv [here](https://arxiv.org/abs/1903.10330)!
