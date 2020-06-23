@@ -13,6 +13,9 @@ I am currently a Ph.D CIFRE candidate in Numerical Probabilty under the directio
 
  My main research subject is **Optimal Quantization**, also known as K-means. I also have a keen interest for Multilevel Monte-Carlo methods and Stochastic Algorithms.
 
+You can find the last version of my PhD thesis [here](https://montest.github.io/files/thesis.pdf).
+
+
 ![Alt Text](https://montest.github.io/files/lloyd.gif)
 
 <!-- A data-driven personal website
