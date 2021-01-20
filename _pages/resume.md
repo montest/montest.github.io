@@ -12,7 +12,7 @@ redirect_from:
 
 ## Education
 <!-- ====== -->
-* Ph.D CIFRE in Numerical Probability, Laboratoire de Probabilité, Statistiques et Modélisation (LPSM), Pierre and Marie Curie University (Paris VI), Mar 2017 to Feb 2020 (expected).
+* Ph.D CIFRE in Numerical Probability, Laboratoire de Probabilité, Statistiques et Modélisation (LPSM), Pierre and Marie Curie University (Paris VI), defended the 24th of June 2020.
 
 * Research Master in Probability and Finance, Pierre and Marie Curie University (Paris VI), Sep 2014 to Jun 2016.
 
@@ -23,7 +23,10 @@ redirect_from:
 
 ## Professional Experience
 <!-- ====== -->
-* Quantitative Analyst at The Independent Calculation Agent, Paris, France, from Nov 2016.
+* Desk Start at Deutsche Bank, London, UK, from September 2020.
+  I am working on the Synthetic Desk's (ETFs and Indices) migration to Kannon (New P&L and Risk tool used by trading).
+
+* Quantitative Analyst at The Independent Calculation Agent, Paris, France, Nov 2016 - February 2020.
   As PhD candidate in collaboration with The ICA, I worked on the following projects:
     * Optimizing the ICA's analytic library using Optimal Quantization based methods (Pricing of Exotic Options in the interest rate world).
     * Identifying and *killing* bias in the xVA computation using Multilevel Monte-Carlo methods.
