@@ -23,7 +23,7 @@ redirect_from:
 
 ## Professional Experience
 <!-- ====== -->
-* Desk Start at Deutsche Bank, London, UK, from September 2020.
+* Desk Strat at Deutsche Bank, London, UK, from September 2020.
   I am working on the Synthetic Desk's (ETFs and Indices) migration to Kannon (New P&L and Risk tool used by trading).
 
 * Quantitative Analyst at The Independent Calculation Agent, Paris, France, Nov 2016 - February 2020.
