@@ -23,8 +23,15 @@ redirect_from:
 
 ## Professional Experience
 <!-- ====== -->
-* Desk Strat at Deutsche Bank, London, UK, from September 2020.
-  I am working on the Synthetic Desk's (ETFs and Indices) migration to Kannon (New P&L and Risk tool used by trading).
+
+* Machine Learning Data Scientist at Talkwalker, Luxembourg, Luxembourg, from May 2021.
+  I am using Deep Learning models for solving NLP related problems. Here are some examples of my projects:
+    * Training classifiers using pre-trained multilingual transformers models.
+    * Active Learning based training.
+    * Meta-Learning for improving classifiers accuracy.
+
+* Desk Strat at Deutsche Bank, London, UK, September 2020 - April 2021.
+  I was working on the Synthetic Desk's (ETFs and Indices) migration to Kannon (New P&L and Risk tool used by trading).
 
 * Quantitative Analyst at The Independent Calculation Agent, Paris, France, Nov 2016 - February 2020.
   As PhD candidate in collaboration with The ICA, I worked on the following projects:
@@ -46,56 +53,10 @@ redirect_from:
 
 * C/C++
 
+* Python (Pytorch, Huggingface, Numpy, Pandas, ...)
+
 * LaTeX
 
 * Scala
 
-* Python
-
 * Matlab - Scilab
-
-
-
-<!-- * Summer 2015: Research Assistant
-  * Github University
-  * Duties included: Tagging issues
-  * Supervisor: Professor Git
-
-* Fall 2015: Research Assistant
-  * Github University
-  * Duties included: Merging pull requests
-  * Supervisor: Professor Hub
- -->
-
-
-<!-- Skills
-======
-* Skill 1
-* Skill 2
-  * Sub-skill 2.1
-  * Sub-skill 2.2
-  * Sub-skill 2.3
-* Skill 3
-
-Publications
-======
-  <ul>{% for post in site.publications %}
-    {% include archive-single-cv.html %}
-  {% endfor %}</ul>
-
-Talks
-======
-  <ul>{% for post in site.talks %}
-    {% include archive-single-talk-cv.html %}
-  {% endfor %}</ul>
-
-Teaching
-======
-  <ul>{% for post in site.teaching %}
-    {% include archive-single-cv.html %}
-  {% endfor %}</ul>
-
-Service and leadership
-======
-* Currently signed in to 43 different slack teams
- -->
