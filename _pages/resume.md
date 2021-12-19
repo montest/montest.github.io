@@ -10,17 +10,6 @@ redirect_from:
 {% include base_path %}
 
 
-## Education
-<!-- ====== -->
-* Ph.D CIFRE in Numerical Probability, Laboratoire de Probabilité, Statistiques et Modélisation (LPSM), Pierre and Marie Curie University (Paris VI), defended the 24th of June 2020.
-
-* Research Master in Probability and Finance, Pierre and Marie Curie University (Paris VI), Sep 2014 to Jun 2016.
-
-* B.S. in Mathematics, Aix-Marseille University, Sep 2011 to Jun 2014.
-
- I spent the 2013-2014 academic year on exchange with the ERASMUS program in the Lund University's mathematics department, Lund, Sweden.
-
-
 ## Professional Experience
 <!-- ====== -->
 
@@ -46,6 +35,18 @@ redirect_from:
 * Intern Research Assistant at LPSM (former LPMA), under the direction of Daphné Giorgi and Vincent Lemaire, Paris, France, Jun 2015 – Jul 2015.
 
   I explored short rate models (Vasicek Model) and their numerical simulation using trinomial trees. The results of the project can be accessed at the following link: [Trinomial Trees Simulation](http://simulations.lpsm.paris/trinomial_trees/)
+
+
+
+## Education
+<!-- ====== -->
+* Ph.D CIFRE in Numerical Probability, Laboratoire de Probabilité, Statistiques et Modélisation (LPSM), Pierre and Marie Curie University (Paris VI), defended the 24th of June 2020.
+
+* Research Master in Probability and Finance, Pierre and Marie Curie University (Paris VI), Sep 2014 to Jun 2016.
+
+* B.S. in Mathematics, Aix-Marseille University, Sep 2011 to Jun 2014.
+
+ I spent the 2013-2014 academic year on exchange with the ERASMUS program in the Lund University's mathematics department, Lund, Sweden.
 
 
 
