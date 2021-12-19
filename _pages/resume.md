@@ -24,8 +24,8 @@ redirect_from:
 ## Professional Experience
 <!-- ====== -->
 
-* Machine Learning Data Scientist at Talkwalker, Luxembourg, Luxembourg, from May 2021.
-  I am using Deep Learning models for solving NLP related problems. Here are some examples of my projects:
+* Machine Learning Data Scientist at Talkwalker, Luxembourg, from May 2021.
+  I am using Deep Learning models in order to solve NLP related problems. Here are some examples of my projects:
     * Training classifiers using pre-trained multilingual transformers models.
     * Active Learning based training.
     * Meta-Learning for improving classifiers accuracy.
