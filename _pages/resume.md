@@ -33,17 +33,17 @@ redirect_from:
 * Desk Strat at Deutsche Bank, London, UK, September 2020 - April 2021.
   I was working on the Synthetic Desk's (ETFs and Indices) migration to Kannon (New P&L and Risk tool used by trading).
 
-* Quantitative Analyst at The Independent Calculation Agent, Paris, France, Nov 2016 - February 2020.
+* Quantitative Researcher at The Independent Calculation Agent, Paris, France, Nov 2016 - February 2020.
   As PhD candidate in collaboration with The ICA, I worked on the following projects:
     * Optimizing the ICA's analytic library using Optimal Quantization based methods (Pricing of Exotic Options in the interest rate world).
     * Identifying and *killing* bias in the xVA computation using Multilevel Monte-Carlo methods.
     * Implementing new regulatory risk measures in the library.
 
-* Intern at The Independent Calculation Agent, Paris, France, May 2016 – Oct 2016.
+* Intern Quantitative Analyst at The Independent Calculation Agent, Paris, France, May 2016 – Oct 2016.
 
   The goal of my internship was to optimize financial products price and risk measures sensitivities computations. I investigated both Malliavin calculus and finite differences methods and concluded the latter offered the best optimization.
 
-* Intern at LPSM (former LPMA), under the direction of Daphné Giorgi and Vincent Lemaire, Paris, France, Jun 2015 – Jul 2015.
+* Intern Research Assistant at LPSM (former LPMA), under the direction of Daphné Giorgi and Vincent Lemaire, Paris, France, Jun 2015 – Jul 2015.
 
   I explored short rate models (Vasicek Model) and their numerical simulation using trinomial trees. The results of the project can be accessed at the following link: [Trinomial Trees Simulation](http://simulations.lpsm.paris/trinomial_trees/)
 
