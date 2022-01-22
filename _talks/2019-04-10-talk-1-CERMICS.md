@@ -1,6 +1,6 @@
 ---
 title: "New weak error bounds and expansions for optimal quantization with Applications"
-collection: talks
+collection: Talks
 type: "Talk"
 permalink: /talks/2019-04-10-talk-1-CERMICS
 venue: "Young Researchers Seminar, CERMICS, École des Ponts ParisTech"

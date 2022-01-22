@@ -3,7 +3,10 @@ main:
 
   - title: "Resume"
     url: /resume/
-  
+
+  - title: "Blog Posts"
+    url: /year-archive/
+
   - title: "Publications"
     url: /publications/
 
@@ -13,6 +16,6 @@ main:
   - title: "Research"
     url: /research/
 
-    
+
   # - title: "Guide"
   #   url: /markdown/

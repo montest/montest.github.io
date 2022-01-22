@@ -85,8 +85,8 @@ author:
   avatar           : "me.jpg"
   bio              : "Machine Learning Data Scientist"
   location         : "Talkwalker, Luxembourg"
-  employer         :
   googlescholar    : "https://scholar.google.fr/citations?user=o8jICwcAAAAJ&hl=en"
+  employer         :
   email            :
   researchgate     :  # example: "https://www.researchgate.net/profile/yourprofile"
   uri              :
@@ -173,19 +173,13 @@ kramdown:
 
 # Collections
 collections:
-  teaching:
+  Publications:
     output: true
     permalink: /:collection/:path/
-  publications:
+  Talks:
     output: true
     permalink: /:collection/:path/
-  portfolio:
-    output: true
-    permalink: /:collection/:path/
-  talks:
-    output: true
-    permalink: /:collection/:path/
-  research:
+  Research:
     output: true
     permalink: /:collection/:path/
     published: false
@@ -211,15 +205,6 @@ defaults:
     values:
       layout: single
       author_profile: true
-  # _teaching
-  - scope:
-      path: ""
-      type: teaching
-    values:
-      layout: single
-      author_profile: true
-      share: true
-      comments: true
   # _publications
   - scope:
       path: ""
@@ -238,15 +223,6 @@ defaults:
       author_profile: true
       share: false
       comments: false
-  # _portfolio
-  - scope:
-      path: ""
-      type: portfolio
-    values:
-      layout: single
-      author_profile: true
-      share: true
-      comment: true
   # _talks
   - scope:
       path: ""
@@ -266,7 +242,7 @@ sass:
 permalink: /:categories/:title/
 # paginate: 5 # amount of posts to show
 # paginate_path: /page:num/
-timezone: America/Los_Angeles # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+timezone: CET # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 
 # Plugins
@@ -284,6 +260,12 @@ whitelist:
   - jekyll-feed
   - jemoji
 
+# Useful for jekyll-feed
+feed:
+  collections:
+    - Publications
+    - Research
+    - Talks
 
 # Archives
 #  Type

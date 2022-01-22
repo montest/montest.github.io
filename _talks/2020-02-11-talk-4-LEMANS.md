@@ -1,6 +1,6 @@
 ---
 title: "Stationary Heston model: Calibration and Pricing of exotics using Product Recursive Quantization"
-collection: talks
+collection: Talks
 type: "Talk"
 permalink: /talks/2020-02-11-talk-4-LEMANS
 venue: "Séminaire probabilités et statistiques"

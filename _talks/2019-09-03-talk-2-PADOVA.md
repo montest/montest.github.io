@@ -1,6 +1,6 @@
 ---
 title: "Tackling Stationary and Randomized Heston Models using Quantization"
-collection: talks
+collection: Talks
 type: "Talk"
 permalink: /talks/2019-09-03-talk-2-PADOVA
 venue: "12th European Summer School in Financial Mathematics"

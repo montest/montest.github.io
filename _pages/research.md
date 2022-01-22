@@ -24,5 +24,3 @@ author_profile: true
 
 ### Optimizing xVA's risk (counterparty risk) computation using Multilevel Monte-Carlo that allows us to kill the bias while reducing the variance of the estimator.  
  -->
-
-
