@@ -1,6 +1,6 @@
 ---
 title: "Stationary Heston model: Calibration and Pricing of exotics using Optimal Quantization"
-collection: Talks
+collection: talks
 type: "Talk"
 permalink: /talks/2019-10-10-talk-3-GTFINANCE-LPSM
 venue: "Groupe de Travail: Finance mathématique, probabilités numériques et statistique des processus"

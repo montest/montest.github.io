@@ -173,13 +173,13 @@ kramdown:
 
 # Collections
 collections:
-  Publications:
+  publications:
     output: true
     permalink: /:collection/:path/
-  Talks:
+  talks:
     output: true
     permalink: /:collection/:path/
-  Research:
+  research:
     output: true
     permalink: /:collection/:path/
     published: false
@@ -263,9 +263,9 @@ whitelist:
 # Useful for jekyll-feed
 feed:
   collections:
-    - Publications
-    - Research
-    - Talks
+    - publications
+    - research
+    - talks
 
 # Archives
 #  Type

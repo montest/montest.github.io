@@ -1,6 +1,6 @@
 ---
 title: "New Weak Error bounds and expansions for Optimal Quantization"
-collection: Publications
+collection: publications
 permalink: /publications/2019-03-25-weak-error-cubature
 excerpt: 'We introduce new error bounds in dimension one for optimal quantization based cubature formula for a class of function that allows us to reach weak error of order two. This new results use deeply the local behaviors of optimal quantizers as well as Lr-Ls mismatch distortion results.'
 date: 2019-03-25
