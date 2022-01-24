@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://montest.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://montest.github.io/" rel="alternate" type="text/html" /><updated>2022-01-24T12:13:03+01:00</updated><id>https://montest.github.io/feed.xml</id><title type="html">Thibaut Montes</title><subtitle>personal description</subtitle><author><name>Thibaut Montes, PhD</name></author><entry><title type="html">Blog Post 1</title><link href="https://montest.github.io/2022/01/06/post1/" rel="alternate" type="text/html" title="Blog Post 1" /><published>2022-01-06T00:00:00+01:00</published><updated>2022-01-06T00:00:00+01:00</updated><id>https://montest.github.io/2022/01/06/post1</id><content type="html" xml:base="https://montest.github.io/2022/01/06/post1/">&lt;hr /&gt;
+&lt;p&gt;title: My References
+—&lt;/p&gt;
+
+&lt;h1 id=&quot;blog-post-1&quot;&gt;Blog Post 1&lt;/h1&gt;
+
+&lt;!-- &lt;a class=&quot;citation&quot; href=&quot;#lemaire2019weakerror&quot;&gt;(Lemaire et al., 2019)&lt;/a&gt; --&gt;
+
+&lt;h2 id=&quot;the-default-bibliography&quot;&gt;The default Bibliography&lt;/h2&gt;
+
+&lt;ol class=&quot;bibliography&quot;&gt;&lt;li&gt;&lt;span id=&quot;lemaire2019weakerror&quot;&gt;Lemaire, V., Montes, T., &amp;amp; Pagès, G. (2019). New Weak Error bounds and expansions for Optimal Quantization. &lt;i&gt;Journal of Computational and Applied Mathematics&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;&lt;/ol&gt;
+
+&lt;p&gt;This is a first test&lt;/p&gt;</content><author><name>Thibaut Montes, PhD</name></author><category term="Numerical Probability" /><category term="Optimization" /><category term="Optimal Quantization" /><summary type="html">Short description of blog article</summary></entry></feed>
