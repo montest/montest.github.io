@@ -12,6 +12,7 @@ title                    : "Thibaut Montes"
 title_separator          : "-"
 name                     : &name "Thibaut Montes"
 description              : &description "personal description"
+# url                      : http://127.0.0.1:4000
 url                      : https://montest.github.io # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "montest/montest.github.io"
@@ -174,6 +175,9 @@ kramdown:
 # Collections
 collections:
   publications:
+    output: true
+    permalink: /:collection/:path/
+  posts:
     output: true
     permalink: /:collection/:path/
   talks:

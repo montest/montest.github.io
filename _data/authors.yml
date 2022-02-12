@@ -3,7 +3,7 @@
 Name Name:
   name        : "Thibaut Montes"
   uri         : "http://name.com"
-  email       : "montest@lpsm.paris"
+  email       : "{Last Name}.{First Name}@gmail.com"
   bio         : "To be completed."
   avatar      : "me.jpg"
   twitter     : "name"

@@ -17,4 +17,6 @@ I successfully defended my Ph.D thesis in Numerical Probability in June 2020. I 
 You can find the last version of my PhD manuscript [here](https://montest.github.io/files/thesis.pdf).
 
 
-![Alt Text](https://montest.github.io/files/lloyd.gif)
+<center>
+    <img alt="N_50_random_lloyd_100000" src="/images/posts/quantization/N_50_random_lloyd_100000.gif" width="500" />
+</center>
