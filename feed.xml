@@ -1,13 +1,411 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://montest.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://montest.github.io/" rel="alternate" type="text/html" /><updated>2022-01-24T13:58:12+01:00</updated><id>https://montest.github.io/feed.xml</id><title type="html">Thibaut Montes</title><subtitle>personal description</subtitle><author><name>Thibaut Montes, PhD</name></author><entry><title type="html">Blog Post 1</title><link href="https://montest.github.io/2022/01/06/post1/" rel="alternate" type="text/html" title="Blog Post 1" /><published>2022-01-06T00:00:00+01:00</published><updated>2022-01-06T00:00:00+01:00</updated><id>https://montest.github.io/2022/01/06/post1</id><content type="html" xml:base="https://montest.github.io/2022/01/06/post1/">&lt;hr /&gt;
-&lt;p&gt;title: My References
-—&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="https://montest.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://montest.github.io/" rel="alternate" type="text/html" /><updated>2022-02-12T23:01:20+01:00</updated><id>https://montest.github.io/feed.xml</id><title type="html">Thibaut Montes</title><subtitle>personal description</subtitle><author><name>Thibaut Montes, PhD</name></author><entry><title type="html">Stochastic Numerical Methods for Optimal Voronoï Quantization</title><link href="https://montest.github.io/2022/02/13/StochasticMethodsForOptimQuantif/" rel="alternate" type="text/html" title="Stochastic Numerical Methods for Optimal Voronoï Quantization" /><published>2022-02-13T00:00:00+01:00</published><updated>2022-02-13T00:00:00+01:00</updated><id>https://montest.github.io/2022/02/13/StochasticMethodsForOptimQuantif</id><content type="html" xml:base="https://montest.github.io/2022/02/13/StochasticMethodsForOptimQuantif/">&lt;h1 id=&quot;introduction&quot;&gt;Introduction&lt;/h1&gt;
 
-&lt;h1 id=&quot;blog-post-1&quot;&gt;Blog Post 1&lt;/h1&gt;
+&lt;p&gt;In this post, I describe the two main Monte-Carlo simulation-based procedures used to build an optimal Voronoï quantizer of $X$. &lt;strong&gt;Optimal quantization&lt;/strong&gt; was first introduced in &lt;a class=&quot;citation&quot; href=&quot;#sheppard1897calculation&quot;&gt;(Sheppard, 1897)&lt;/a&gt;, where the author focused on the optimal quantization of the uniform distribution over unit hypercubes. It was then extended to more general laws motivated by applications to signal transmission in the Bell Laboratory in the 1950s (see &lt;a class=&quot;citation&quot; href=&quot;#gersho1982special&quot;&gt;(Gersho &amp;amp; Gray, 1982)&lt;/a&gt;).&lt;/p&gt;
 
-&lt;!-- &lt;a class=&quot;citation&quot; href=&quot;#lemaire2019weakerror&quot;&gt;(Lemaire et al., 2019)&lt;/a&gt; --&gt;
+&lt;p&gt;Optimal quantization is also linked to an unsupervised learning computational statistical method. Indeed, the &lt;strong&gt;K-means&lt;/strong&gt; method, which is a nonparametric automatic classification method consisting, given a set of points and an integer $k$, in dividing the points into $k$ classes (&lt;strong&gt;clusters&lt;/strong&gt;), is based on the same algorithm as the Lloyd method used to build an optimal quantizer. The &lt;strong&gt;K-means&lt;/strong&gt; problem was formulated by Steinhaus in &lt;a class=&quot;citation&quot; href=&quot;#steinhaus1956division&quot;&gt;(Steinhaus, 1956)&lt;/a&gt; and then taken up a few years later by MacQueen in &lt;a class=&quot;citation&quot; href=&quot;#macqueen1967some&quot;&gt;(MacQueen, 1967)&lt;/a&gt;.&lt;/p&gt;
 
-&lt;h2 id=&quot;the-default-bibliography&quot;&gt;The default Bibliography&lt;/h2&gt;
+&lt;p&gt;In the 90s, optimal quantization was first used for numerical integration purposes for the approximation of expectations, see &lt;a class=&quot;citation&quot; href=&quot;#pages1998space&quot;&gt;(Pagès, 1998)&lt;/a&gt;, and later used for the approximation of conditional expectations: see &lt;a class=&quot;citation&quot; href=&quot;#bally2001stochastic&quot;&gt;(Bally et al., 2001; Bally &amp;amp; Pagès, 2003; Bally et al., 2005)&lt;/a&gt; for optimal stopping problems applied to the pricing of American options, &lt;a class=&quot;citation&quot; href=&quot;#pages2005optimal&quot;&gt;(Pagès &amp;amp; Pham, 2005; Pham et al., 2005)&lt;/a&gt; for non-linear filtering problems, (missing reference) for stochastic control problems, &lt;a class=&quot;citation&quot; href=&quot;#gobet2005discretization&quot;&gt;(Gobet et al., 2005)&lt;/a&gt; for discretization and simulation of Zakai and McKean-Vlasov equations and &lt;a class=&quot;citation&quot; href=&quot;#brandejsky2012numerical&quot;&gt;(Brandejsky et al., 2012; De Saporta &amp;amp; Dufour, 2012)&lt;/a&gt; in the presence of piecewise deterministic Markov processes (PDMP).&lt;/p&gt;
 
-&lt;ol class=&quot;bibliography&quot;&gt;&lt;li&gt;&lt;span id=&quot;lemaire2019weakerror&quot;&gt;Lemaire, V., Montes, T., &amp;amp; Pagès, G. (2019). New Weak Error bounds and expansions for Optimal Quantization. &lt;i&gt;Journal of Computational and Applied Mathematics&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;&lt;/ol&gt;
+&lt;p&gt;First I remind what are a Voronoï tesselation, a quadratic optimal quantizer and their main properties. Then, I explain the two algorithms that were first devised in order to build an optimal quantization of a random vector $X$. All explanations are accompanied by some code examples in Python.&lt;/p&gt;
 
-&lt;p&gt;This is a first test&lt;/p&gt;</content><author><name>Thibaut Montes, PhD</name></author><category term="Numerical Probability" /><category term="Optimization" /><category term="Optimal Quantization" /><summary type="html">Short description of blog article</summary></entry></feed>
+&lt;p&gt;All the code presented in this blog post is available in the following Github repository: &lt;a href=&quot;https://github.com/montest/stochastic-methods-optimal-quantization&quot;&gt;montest/stochastic-methods-optimal-quantization&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;voronoï-tesselation&quot;&gt;Voronoï tesselation&lt;/h1&gt;
+
+&lt;p&gt;A Voronoï tesselation (or diagram) is a way, given a set of points (also called centroids) in $\mathbb{R}^d$, to divide / partition a space into regions or cells. For each cell, all the points in it are closer to the centroid associated to the cell than any other centroid.&lt;/p&gt;
+
+&lt;p&gt;For example, in the figure below, all the points in the top right yellow cell are closer to the centroid (red dot in the middle of the cell) than to any other centroid in the green/blue cells. The yellow cell is called the Voronoï cell of the centroid.&lt;/p&gt;
+
+&lt;center&gt;&lt;img alt=&quot;VoronoiQuantizationUniform&quot; src=&quot;/images/posts/quantization/voronoi_quantization.png&quot; width=&quot;350&quot; /&gt;&lt;/center&gt;
+
+&lt;p&gt;I give below a more formal definition of a quantizer and its associated Voronoï tesselation.&lt;/p&gt;
+
+&lt;h3 id=&quot;definition&quot;&gt;Definition&lt;/h3&gt;
+&lt;p&gt;Let \(\Gamma_N = \big\{ x_1^N, \dots , x_N^N \big\} \subset \mathbb{R}^d\) be a subset of size $N$, called &lt;strong&gt;$N$-quantizer&lt;/strong&gt;. $x_i^N$ is a centroid (red dot in the above figure).&lt;/p&gt;
+
+&lt;p&gt;A Borel partition $\big( C_i (\Gamma_N) \big)_{i =1, \dots, N}$ of $\mathbb{R}^d$ is a Voronoï partition of $\mathbb{R}^d$ induced by the $N$-quantizer $\Gamma_N$ if, for every $i \in { 1, \dots , N }$,&lt;/p&gt;
+
+\[C_i (\Gamma_N) \subset \big\{ \xi \in \mathbb{R}^d, \vert \xi - x_i^N \vert \leq \min_{j \neq i }\vert \xi - x_j^N \vert \big\}.\]
+
+&lt;p&gt;The Borel sets $C_i (\Gamma_N)$ are called &lt;strong&gt;Voronoï cells&lt;/strong&gt; of the partition induced by $\Gamma_N$.&lt;/p&gt;
+
+&lt;p&gt;For example, for a list of centroid &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;centroids&lt;/code&gt; ( \(\Gamma_N\)) and a given point &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;p&lt;/code&gt;, the closest centroid to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;p&lt;/code&gt; can be find using the following method that returns the index &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;i&lt;/code&gt; of the closest centroid and the distance between this centroid &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;x_i&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;p&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;typing&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ndarray&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;find_closest_centroid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;index_closest_centroid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;min_dist&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sys&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;float_info&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;max&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x_i&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;enumerate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;dist&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;linalg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;norm&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x_i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dist&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;min_dist&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;index_closest_centroid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;min_dist&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dist&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;index_closest_centroid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;min_dist&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;voronoï-quantization&quot;&gt;Voronoï quantization&lt;/h1&gt;
+
+&lt;p&gt;Now, going back to our initial problem: let $X$ be an $\mathbb{R}^d$-valued random vector with distribution $\mu = P_{X}$ and $\vert \cdot \vert$ be the euclidean norm in $\mathbb{R}^d$.&lt;/p&gt;
+
+&lt;p&gt;In simple terms, an optimal quantization of a random vector $X$ is the best approximation of $X$ by a discrete random vector $\widehat X^N$ with cardinality at most $N$.&lt;/p&gt;
+
+&lt;p&gt;In the following figure, I display 2 possible quantizations of size $100$ of a standard gaussian random vector $X$ of dimension 2. The red dots represents the possible values (also called centroids) of the discrete random vector and the color of each cell represents the probability associated to each value. The figure on the left is a random quantization of $X$ while the figure on the right shows a quadratic optimal quantization of $X$.&lt;/p&gt;
+
+&lt;center&gt;
+&lt;img alt=&quot;GaussianQuantif2D_noopt&quot; src=&quot;/images/posts/quantization/noopt_quantization_gaussian2d_100.png&quot; width=&quot;350&quot; /&gt;
+&lt;img alt=&quot;GaussianQuantif2D_opt&quot; src=&quot;/images/posts/quantization/opt_quantization_gaussian2d_100.png&quot; width=&quot;350&quot; /&gt;
+&lt;/center&gt;
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;Now, let us be a bit more precise and give some definitions of the main notations use in this post.&lt;/p&gt;
+
+&lt;h3 id=&quot;definition-1&quot;&gt;Definition&lt;/h3&gt;
+&lt;p&gt;A &lt;strong&gt;Voronoï quantization&lt;/strong&gt; of $X$ by $\Gamma_N$, $\widehat X^N$, is defined as nearest neighbor projection of $X$ onto $\Gamma_N$ associated to a Voronoï partition $\big( C_i (\Gamma_N) \big)_{i =1, \dots, N}$ for the euclidean norm&lt;/p&gt;
+
+\[\widehat X^N := \textrm{Proj}_{\Gamma_N} (X) = \sum_{i = 1}^N x_i^N \mathbb{1}_{X \in C_i (\Gamma_N) }\]
+
+&lt;p&gt;and its associated &lt;strong&gt;probabilities&lt;/strong&gt;, also called weights, are given by&lt;/p&gt;
+
+\[\mathbb{P} \big( \widehat X^N = x_i^N \big) = \mathbb{P}_{_{X}} \big( C_i (\Gamma_N) \big) = \mathbb{P} \big( X \in C_i (\Gamma_N) \big).\]
+
+&lt;h1 id=&quot;optimal-quantization&quot;&gt;Optimal quantization&lt;/h1&gt;
+
+&lt;p&gt;Now, we can define what an optimal quantization of $X$ is: we are looking for the best approximation of $X$ in the sense that we want to minimize the distance between $X$ and $\widehat X^N$. This distance is measured by the standard $L^2$ norm, denoted $\Vert X - \widehat X^N \Vert_{_2}$, and is called the mean quantization error. But, more often, the quadratic distortion defined as half of the square of the mean quantization error is used.&lt;/p&gt;
+
+&lt;h3 id=&quot;definition-2&quot;&gt;Definition&lt;/h3&gt;
+&lt;p&gt;The quadratic distortion function at level $N$ induced by an $N$-tuple $x := (x_1^N, \dots, x_N^N) $ is given by&lt;/p&gt;
+
+\[\mathcal{Q}_{2,N} : x \longmapsto \frac{1}{2} \mathbb{E} \Big[ \min_{i = 1, \dots, N} \vert X - x_i^N \vert^2 \Big] = \frac{1}{2} \mathbb{E} \Big[ \textrm{dist} (X, \Gamma_N )^2 \Big] = \frac{1}{2} \Vert X - \widehat X^N \Vert_{_2}^2 .\]
+
+&lt;p&gt;Of course, the above result can be extended to the $L^p$ case by considering the $L^p$-mean quantization error in place of the quadratic one.&lt;/p&gt;
+
+&lt;p&gt;Thus, we are looking for quantizers $\widehat X^N$ taking value in grids $\Gamma_N$ of size $N$ which minimize the quadratic distortion&lt;/p&gt;
+
+\[\min_{\Gamma_N \subset \mathbb{R}^d, \vert \Gamma_N \vert \leq N } \Vert X - \widehat X^N \Vert_{_2}^2.\]
+
+&lt;p&gt;Classical theoretical results on optimal quantizer can be found in &lt;a class=&quot;citation&quot; href=&quot;#graf2000foundations&quot;&gt;(Graf &amp;amp; Luschgy, 2000; Pagès, 2018)&lt;/a&gt;. Check those books if you are interested in results on existence and uniqueness of optimal quantizers or if you want further details on the asymptotic behavior of the distortion (such as Zador’s Theorem).&lt;/p&gt;
+
+&lt;h1 id=&quot;how-to-build-an-optimal-quantizer&quot;&gt;How to build an optimal quantizer?&lt;/h1&gt;
+
+&lt;p&gt;In this part, I will focus on how to build an optimal quadratic quantizer or, equivalently, find a solution to the following minimization problem&lt;/p&gt;
+
+\[\textrm{arg min}_{(\mathbb{R}^d)^N} \mathcal{Q}_{2,N}.\]
+
+&lt;p&gt;For that, let’s differentiate the distortion function \(\mathcal{Q}_{2,N}\). The gradient \(\nabla \mathcal{Q}_{2,N}\) is given by&lt;/p&gt;
+
+\[\nabla \mathcal{Q}_{2,N} (x) = \bigg[ \int_{C_i (\Gamma_N)} (x_i^N - \xi ) \mathbb{P}_{_{X}} (d \xi) \bigg]_{i = 1, \dots, N } = \Big[ \mathbb{E}\big[ \mathbb{1}_{X \in C_i (\Gamma_N)} ( x_i^N - X ) \big] \Big]_{i = 1, \dots, N }.\]
+
+&lt;p&gt;The latter expression is useful for numerical methods based on deterministic procedures while the former featuring a local gradient is handy when we work with stochastic algorithms, which is the case in this post.&lt;/p&gt;
+
+&lt;p&gt;Two main stochastic algorithms exist for building an optimal quantizer in \(\mathbb{R}^d\). The first is a fixed-point search, called Lloyd method, see &lt;a class=&quot;citation&quot; href=&quot;#lloyd1982least&quot;&gt;(Lloyd, 1982; Pagès &amp;amp; Printems, 2003)&lt;/a&gt; or &lt;strong&gt;K-means&lt;/strong&gt; in the case of unsupervised learning and the second is a stochastic gradient descent, called Competitive Learning Vector Quantization (CLVQ) or also Kohonen algorithm see &lt;a class=&quot;citation&quot; href=&quot;#pages1998space&quot;&gt;(Pagès, 1998; Fort &amp;amp; Pages, 1995)&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;lloyd-method&quot;&gt;Lloyd method&lt;/h2&gt;
+
+&lt;p&gt;Starting from the previous equation, when we search a zero of the gradient, we derive a fixed-point problem. Let \(\Lambda_i : \mathbb{R}^N \mapsto \mathbb{R}\) defined by&lt;/p&gt;
+
+\[\Lambda_i (x) = \frac{\mathbb{E}\big[ X \mathbb{1}_{ X \in C_i (\Gamma_N)} \big]}{\mathbb{P} \big( X \in C_i (\Gamma_N) \big)}\]
+
+&lt;p&gt;then&lt;/p&gt;
+
+\[\nabla \mathcal{Q}_{2,N} (x) = 0 \quad \iff \quad \forall i = 1, \dots, N  \qquad x_i = \Lambda_i ( x ).\]
+
+&lt;p&gt;Hence, from this equality, we deduce a fixed-point search algorithm. This method, known as the &lt;strong&gt;Lloyd method&lt;/strong&gt;, was first devised by Lloyd in &lt;a class=&quot;citation&quot; href=&quot;#lloyd1982least&quot;&gt;(Lloyd, 1982)&lt;/a&gt;. Let $x^{[n]}$ be the quantizer of size $N$ obtained after $n$ iterations, the Lloyd method with initial condition $x^0$ is defined as follows&lt;/p&gt;
+
+\[x^{[n+1]} = \Lambda \big( x^{[n]} \big).\]
+
+&lt;p&gt;In our setup, in absence of deterministic methods for computing the expectations, they will be approximated using Monte-Carlo simulation. Let \(\xi_1, \dots, \xi_M\) be independent copies of \(X\), the stochastic version of \(\Lambda_i\)  is defined by&lt;/p&gt;
+
+\[\Lambda_i^M ( x ) = \frac{\displaystyle \sum_{m=1}^M \xi_m \mathbb{1}_{ \big\{ \textrm{Proj}_{\Gamma_N} (\xi_m) = x_i^N \big\} } }{\displaystyle \sum_{m=1}^M \mathbb{1}_{ \big\{ \textrm{Proj}_{\Gamma_N} (\xi_m) = x_i^N \big\} } }. % \qquad \mbox{with} \qquad \Gamma_N = \{ x_1^N, \dots, x_N^N \}\]
+
+&lt;p&gt;Hence, the $n+1$ iteration of the Randomized Lloyd method is given by&lt;/p&gt;
+
+\[x^{[n+1]} = \Lambda^M \big( x^{[n]} \big).\]
+
+&lt;p&gt;During the optimization of the quantizer it is possible to compute the weight \(p_i^N\) and the local distortion \(q_i^N\) associated to a centroid defined by&lt;/p&gt;
+
+\[p_i^N = \mathbb{P} \big( X \in C_i (\Gamma_N) \big) \quad \mbox{ and } \quad q_i^N = \mathbb{E}\big[ (X - x_i^N)^2 \mathbb{1}_{X \in C_i (\Gamma_N)} \big].\]
+
+&lt;p&gt;I give below a Python code example for the Randomized Lloyd method that takes as input the quantizer $x^{[n]}$ and $M$ samples $(\xi_m)_{m = 1, \dots, M}$ of $X$ and returns $x^{[n+1]}$, the weights and the local-distortion approximated using Monte-Carlo.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;numpy&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;fixed_point_iteration&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;xs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;N&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Size of the quantizer
+&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;xs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Number of samples
+&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# Initialization step
+&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;local_mean&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;zeros&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;local_count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;zeros&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;local_dist&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;xs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;# find the centroid which is the closest to sample x
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;l2_dist&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;find_closest_centroid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;# Compute local mean, proba and distortion
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;local_mean&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;local_mean&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;local_dist&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;l2_dist&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Computing distortion
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;local_count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Count number of samples falling in cell 'index'
+&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;local_mean&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;local_count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;local_count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;probas&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;local_count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;float&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;local_dist&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;float&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;probas&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Then, using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;fixed_point_iteration&lt;/code&gt; and starting from a initial guess $x^0$ of size $N$, we can build an optimal quantizer of a random vector $X$ as long as we have access to a random generator of $X$.&lt;/p&gt;
+
+&lt;p&gt;Here is a small code example for building an optimal quantizer of a gaussian random vector in dimension 2 where you can select &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;N&lt;/code&gt; the size of the optimal quantizer, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;M&lt;/code&gt; the number of sample you want to generate and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nbr_iter&lt;/code&gt; the number of fixed-point iterations you want to do using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;M&lt;/code&gt; samples each time.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;tqdm&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;trange&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;lloyd_method&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nbr_iter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;random&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;normal&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Initialize the Voronoi Quantizer
+&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;trange&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nbr_iter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;desc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'Lloyd method'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;step&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+
+            &lt;span class=&quot;n&quot;&gt;xs&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;random&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;normal&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Draw M samples of gaussian vectors
+&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;probas&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fixed_point_iteration&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;xs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Apply fixed-point search iteration
+&lt;/span&gt;            &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;set_postfix&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+            &lt;span class=&quot;c1&quot;&gt;# This is only useful when plotting the results
+&lt;/span&gt;            &lt;span class=&quot;n&quot;&gt;save_results&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;probas&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;step&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;method&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'lloyd'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;make_gif&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get_directory&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;method&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'lloyd'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;probas&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;I display below some examples of 100 steps of the Lloyd method applied for a the quantization of size $N$ of the Gaussian Random vector in dimension 2 for different values of $M$. On the left, you can see the 100 iterations of the $N$-quantizer and on the right the distortion computed during the fixed-point iteration.&lt;/p&gt;
+
+&lt;details open=&quot;&quot;&gt;
+    &lt;summary&gt;
+        &lt;span style=&quot;color:#5DADE2;font-weight:bold&quot;&gt;
+            100 steps of the randomized lloyd method with N=50 and M=5000
+        &lt;/span&gt;
+    &lt;/summary&gt;
+    &lt;center&gt;
+        &lt;img alt=&quot;N_50_random_lloyd_5000&quot; src=&quot;/images/posts/quantization/N_50_random_lloyd_5000.gif&quot; width=&quot;350&quot; /&gt;
+        &lt;img alt=&quot;distortion_N_50_random_lloyd_5000&quot; src=&quot;/images/posts/quantization/distortion_N_50_random_lloyd_5000.svg&quot; width=&quot;400&quot; /&gt;
+    &lt;/center&gt;
+&lt;/details&gt;
+
+&lt;details&gt;
+    &lt;summary&gt;
+        &lt;span style=&quot;color:#5DADE2;font-weight:bold&quot;&gt;
+            100 steps of the randomized lloyd method with N=50 and M=10000 (Click to expand)
+        &lt;/span&gt;
+    &lt;/summary&gt;
+    &lt;center&gt;
+        &lt;img alt=&quot;N_50_random_lloyd_10000&quot; src=&quot;/images/posts/quantization/N_50_random_lloyd_10000.gif&quot; width=&quot;350&quot; /&gt;
+        &lt;img alt=&quot;distortion_N_50_random_lloyd_10000&quot; src=&quot;/images/posts/quantization/distortion_N_50_random_lloyd_10000.svg&quot; width=&quot;400&quot; /&gt;
+    &lt;/center&gt;
+&lt;/details&gt;
+
+&lt;details&gt;
+    &lt;summary&gt;
+        &lt;span style=&quot;color:#5DADE2;font-weight:bold&quot;&gt;
+            100 steps of the randomized lloyd method with N=50 and M=20000 (Click to expand)
+        &lt;/span&gt;
+    &lt;/summary&gt;
+    &lt;center&gt;
+        &lt;img alt=&quot;N_50_random_lloyd_20000&quot; src=&quot;/images/posts/quantization/N_50_random_lloyd_20000.gif&quot; width=&quot;350&quot; /&gt;
+        &lt;img alt=&quot;distortion_N_50_random_lloyd_20000&quot; src=&quot;/images/posts/quantization/distortion_N_50_random_lloyd_20000.svg&quot; width=&quot;400&quot; /&gt;
+    &lt;/center&gt;
+&lt;/details&gt;
+
+&lt;details&gt;
+    &lt;summary&gt;
+        &lt;span style=&quot;color:#5DADE2;font-weight:bold&quot;&gt;
+            100 steps of the randomized lloyd method with N=50 and M=50000 (Click to expand)
+        &lt;/span&gt;
+    &lt;/summary&gt;
+    &lt;center&gt;
+        &lt;img alt=&quot;N_50_random_lloyd_50000&quot; src=&quot;/images/posts/quantization/N_50_random_lloyd_50000.gif&quot; width=&quot;350&quot; /&gt;
+        &lt;img alt=&quot;distortion_N_50_random_lloyd_50000&quot; src=&quot;/images/posts/quantization/distortion_N_50_random_lloyd_50000.svg&quot; width=&quot;400&quot; /&gt;
+    &lt;/center&gt;
+&lt;/details&gt;
+
+&lt;details&gt;
+    &lt;summary&gt;
+        &lt;span style=&quot;color:#5DADE2;font-weight:bold&quot;&gt;
+            100 steps of the randomized lloyd method with N=50 and M=100000 (Click to expand)
+        &lt;/span&gt;
+    &lt;/summary&gt;
+    &lt;center&gt;
+        &lt;img alt=&quot;N_50_random_lloyd_100000&quot; src=&quot;/images/posts/quantization/N_50_random_lloyd_100000.gif&quot; width=&quot;350&quot; /&gt;
+        &lt;img alt=&quot;distortion_N_50_random_lloyd_100000&quot; src=&quot;/images/posts/quantization/distortion_N_50_random_lloyd_100000.svg&quot; width=&quot;400&quot; /&gt;
+    &lt;/center&gt;
+&lt;/details&gt;
+
+&lt;h3 id=&quot;remark&quot;&gt;Remark&lt;/h3&gt;
+&lt;p&gt;In the previous code snippet, I use new random numbers, independent copies of $X$, for each batch of size $M$. However, it is also possible to generate only once a set of size $M$ of independent copies of $X$ and then in the loop that iterates &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nbr_iter&lt;/code&gt; times and use them for every batch, as suggested in subsection 6.3.5 of &lt;a class=&quot;citation&quot; href=&quot;#pages2018numerical&quot;&gt;(Pagès, 2018)&lt;/a&gt;. This amounts to consider the $M$-sample of the distribution of $X$ as the distribution to be quantized. This is stricly equivalent as using the &lt;strong&gt;K-means&lt;/strong&gt; method for clustering the dataset of size $M$ into $N$ clusters.&lt;/p&gt;
+
+&lt;h2 id=&quot;competitive-learning-vector-quantization&quot;&gt;Competitive Learning Vector Quantization&lt;/h2&gt;
+
+&lt;p&gt;The second algorithm is a stochastic gradient descent called Competitive Learning Vector Quantization (CLVQ) algorithm, where we use a gradient descent in order to find the grid that minimize the distortion. Since the gradient cannot be computed deterministically, the idea is to replace it by a stochastic version. Let $\xi_1, \dots, \xi_n, \dots$ a sequence of independent copies of $X$, the $n+1$ iterate of the CLVQ algorithm is given by&lt;/p&gt;
+
+\[x^{[n+1]} = x^{[n]} - \gamma_{n+1} \nabla \textit{q}_{2,N} (x^{[n]}, \xi_{n+1})\]
+
+&lt;p&gt;with&lt;/p&gt;
+
+\[\nabla \textit{q}_{2,N} (x^{[n]}, \xi_{n+1}) = \Big( \mathbb{1}_{\xi_{n+1} \in C_i (\Gamma_N)} ( x_i^{[n]} - \xi_{n+1} ) \Big)_{1 \leq i \leq N}\]
+
+&lt;p&gt;For the choice on the learning rate I refer to the section 6.3.5 in &lt;a class=&quot;citation&quot; href=&quot;#pages2018numerical&quot;&gt;(Pagès, 2018)&lt;/a&gt;. Below, you can find a method that returns a learning rate $\gamma_{n+1}$ for a given centroid size &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;N&lt;/code&gt; and a step &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;n&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;numpy&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;lr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;4.0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pi&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;float&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;float&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;1.&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Again, during the optimization the weights $p_i^N$ and the local distortions \(q_i^N\) associated to the centroids can be computed. I detail below a Python method that applies &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;M&lt;/code&gt; gradient-descent steps of the CLVQ algorithm starting from the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;init_n&lt;/code&gt; iterate $x^{[\textrm{init}_n]}$&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;apply_M_gradient_descend_steps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;xs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Point&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;List&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;float&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;float&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;init_n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;N&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Size of the quantizer
+&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# M steps of the Stochastic Gradient Descent
+&lt;/span&gt;    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;enumerate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;xs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;gamma_n&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;init_n&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;# find the centroid which is the closest to sample x
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;l2_dist&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;find_closest_centroid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;# Update the closest centroid using the local gradient
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gamma_n&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;# Update the distortion using gamma_n
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gamma_n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.5&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gamma_n&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;l2_dist&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;**&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;# Update counter used for computing the probabilities
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;index&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Hence, starting from a random quantizer of size $N$, the following algorithm will apply &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;n&lt;/code&gt; gradient-descent steps of the CLVQ algorithm while ploting the approximated distortion every &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;M&lt;/code&gt; steps.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;tqdm&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;trange&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;clvq_method&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nbr_iter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;M&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nbr_iter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;# Initialization step
+&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;random&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;normal&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;zeros&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;N&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mf&quot;&gt;0.&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;trange&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nbr_iter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;desc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'CLVQ method'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;step&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;xs&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;random&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;normal&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;  &lt;span class=&quot;c1&quot;&gt;# Draw M samples of gaussian vectors
+&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;apply_M_gradient_descend_steps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;xs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;init_n&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;step&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;set_postfix&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nbr_gradient_iter&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;step&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;M&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;probas&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sum&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;centroids&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;probas&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;distortion&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;I display below some examples of the CLVQ algorithm applied for a the quantization of size $N$ of the Gaussian Random vector in dimension 2 for different values of $n$ where a plot is made every $n/100$ gradient descent steps. On the left, you can see the 100 iterations of the $N$-quantizer and on the right the distortion.&lt;/p&gt;
+
+&lt;details open=&quot;&quot;&gt;
+    &lt;summary&gt;
+        &lt;span style=&quot;color:#5DADE2;font-weight:bold&quot;&gt;
+            100 steps of the CLVQ algorithm with N=50 and n=500000
+        &lt;/span&gt;
+    &lt;/summary&gt;
+    &lt;center&gt;
+        &lt;img alt=&quot;N_50_random_clvq_5000&quot; src=&quot;/images/posts/quantization/N_50_random_clvq_5000.gif&quot; width=&quot;350&quot; /&gt;
+        &lt;img alt=&quot;distortion_N_50_random_clvq_5000&quot; src=&quot;/images/posts/quantization/distortion_N_50_random_clvq_5000.svg&quot; width=&quot;400&quot; /&gt;
+    &lt;/center&gt;
+&lt;/details&gt;
+
+&lt;details&gt;
+    &lt;summary&gt;
+        &lt;span style=&quot;color:#5DADE2;font-weight:bold&quot;&gt;
+            100 steps of the CLVQ algorithm with N=50 and n=1000000 (Click to expand)
+        &lt;/span&gt;
+    &lt;/summary&gt;
+    &lt;center&gt;
+        &lt;img alt=&quot;N_50_random_clvq_10000&quot; src=&quot;/images/posts/quantization/N_50_random_clvq_10000.gif&quot; width=&quot;350&quot; /&gt;
+        &lt;img alt=&quot;distortion_N_50_random_clvq_10000&quot; src=&quot;/images/posts/quantization/distortion_N_50_random_clvq_10000.svg&quot; width=&quot;400&quot; /&gt;
+    &lt;/center&gt;
+&lt;/details&gt;
+
+&lt;details&gt;
+    &lt;summary&gt;
+        &lt;span style=&quot;color:#5DADE2;font-weight:bold&quot;&gt;
+            100 steps of the CLVQ algorithm with N=50 and n=2000000 (Click to expand)
+        &lt;/span&gt;
+    &lt;/summary&gt;
+    &lt;center&gt;
+        &lt;img alt=&quot;N_50_random_clvq_20000&quot; src=&quot;/images/posts/quantization/N_50_random_clvq_20000.gif&quot; width=&quot;350&quot; /&gt;
+        &lt;img alt=&quot;distortion_N_50_random_clvq_20000&quot; src=&quot;/images/posts/quantization/distortion_N_50_random_clvq_20000.svg&quot; width=&quot;400&quot; /&gt;
+    &lt;/center&gt;
+&lt;/details&gt;
+
+&lt;details&gt;
+    &lt;summary&gt;
+        &lt;span style=&quot;color:#5DADE2;font-weight:bold&quot;&gt;
+            100 steps of the CLVQ algorithm with N=50 and n=5000000 (Click to expand)
+        &lt;/span&gt;
+    &lt;/summary&gt;
+    &lt;center&gt;
+        &lt;img alt=&quot;N_50_random_clvq_50000&quot; src=&quot;/images/posts/quantization/N_50_random_clvq_50000.gif&quot; width=&quot;350&quot; /&gt;
+        &lt;img alt=&quot;distortion_N_50_random_clvq_50000&quot; src=&quot;/images/posts/quantization/distortion_N_50_random_clvq_50000.svg&quot; width=&quot;400&quot; /&gt;
+    &lt;/center&gt;
+&lt;/details&gt;
+
+&lt;details&gt;
+    &lt;summary&gt;
+        &lt;span style=&quot;color:#5DADE2;font-weight:bold&quot;&gt;
+            100 steps of the CLVQ algorithm with N=50 and n=10000000 (Click to expand)
+        &lt;/span&gt;
+    &lt;/summary&gt;
+    &lt;center&gt;
+        &lt;img alt=&quot;N_50_random_clvq_100000&quot; src=&quot;/images/posts/quantization/N_50_random_clvq_100000.gif&quot; width=&quot;350&quot; /&gt;
+        &lt;img alt=&quot;distortion_N_50_random_clvq_100000&quot; src=&quot;/images/posts/quantization/distortion_N_50_random_clvq_100000.svg&quot; width=&quot;400&quot; /&gt;
+    &lt;/center&gt;
+&lt;/details&gt;
+
+&lt;h3 id=&quot;remark-1&quot;&gt;Remark&lt;/h3&gt;
+&lt;p&gt;Several developments of the CLVQ algorithm can be considered. For example, I could use the the averaging algorithm of Rupper and Polyak, yielding the averaged quantizer $\widetilde x^{[n+1]}$ defined by&lt;/p&gt;
+
+\[\left\{
+\begin{aligned}
+	x^{[n+1]}            &amp;amp; = x^{[n]} - \gamma_{n+1} \nabla \textit{q}_{2,N} (x^{[n]}, \xi_{n+1}) \\
+	\widetilde x^{[n+1]} &amp;amp; = \frac{1}{n+1} \sum_{i=1}^{n+1} x^{[i]}.
+\end{aligned} \right.\]
+
+&lt;p&gt;An other possibility would be to consider a batch version of the stochastic algorithm in order to have a better approximation of the gradient at each step, yielding&lt;/p&gt;
+
+\[x^{[n+1]} = x^{[n]} - \gamma_{n+1} \frac{1}{M} \sum_{m=1}^M \nabla \textit{q}_{2,N} (x^{[n]}, \xi_{n+1}^m).\]
+
+&lt;h1 id=&quot;references&quot;&gt;References&lt;/h1&gt;
+
+&lt;ol class=&quot;bibliography&quot;&gt;&lt;li&gt;&lt;span id=&quot;sheppard1897calculation&quot;&gt;Sheppard, W. F. (1897). On the Calculation of the most Probable Values of Frequency-Constants, for Data arranged according to Equidistant Division of a Scale. &lt;i&gt;Proceedings of the London Mathematical Society&lt;/i&gt;, &lt;i&gt;1&lt;/i&gt;(1), 353–380. https://doi.org/10.1112/plms/s1-29.1.353&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;gersho1982special&quot;&gt;Gersho, A., &amp;amp; Gray, R. M. (1982). Special issue on Quantization. &lt;i&gt;IEEE Transactions on Information Theory&lt;/i&gt;, &lt;i&gt;29&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;steinhaus1956division&quot;&gt;Steinhaus, H. (1956). Sur la division des corps materiels en parties. &lt;i&gt;Bulletin De l’Académie Polonaise Des Sciences&lt;/i&gt;, &lt;i&gt;1&lt;/i&gt;(804), 801. https://doi.org/10.1371/journal.pone.0024999&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;macqueen1967some&quot;&gt;MacQueen, J. (1967). Some methods for classification and analysis of multivariate observations. &lt;i&gt;Proceedings of the Fifth Berkeley Symposium on Mathematical Statistics and Probability&lt;/i&gt;, &lt;i&gt;1&lt;/i&gt;(14), 281–297.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;pages1998space&quot;&gt;Pagès, G. (1998). A space quantization method for numerical integration. &lt;i&gt;Journal of Computational and Applied Mathematics&lt;/i&gt;, &lt;i&gt;89&lt;/i&gt;(1), 1–38. https://doi.org/10.1016/S0377-0427(97)00190-8&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;bally2001stochastic&quot;&gt;Bally, V., Pagès, G., &amp;amp; Printems, J. (2001). A Stochastic Quantization Method for Nonlinear Problems. &lt;i&gt;Monte Carlo Methods and Applications&lt;/i&gt;, &lt;i&gt;7&lt;/i&gt;, 21–34. https://doi.org/10.1515/mcma.2001.7.1-2.21&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;bally2003quantization&quot;&gt;Bally, V., &amp;amp; Pagès, G. (2003). A quantization algorithm for solving multidimensional discrete-time optimal stopping problems. &lt;i&gt;Bernoulli&lt;/i&gt;, &lt;i&gt;9&lt;/i&gt;(6), 1003–1049. https://doi.org/10.3150/bj/1072215199&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;printems2005quantization&quot;&gt;Bally, V., Pagès, G., &amp;amp; Printems, J. (2005). A quantization tree method for pricing and hedging multi-dimensional American options. &lt;i&gt;Mathematical Finance&lt;/i&gt;, &lt;i&gt;15&lt;/i&gt;(1), 119–168. https://doi.org/10.1111/j.0960-1627.2005.00213.x&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;pages2005optimal&quot;&gt;Pagès, G., &amp;amp; Pham, H. (2005). Optimal quantization methods for nonlinear filtering with discrete-time observations. &lt;i&gt;Bernoulli&lt;/i&gt;, &lt;i&gt;11&lt;/i&gt;(5), 893–932. https://doi.org/10.3150/bj/1130077599&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;pham2005approximation&quot;&gt;Pham, H., Runggaldier, W., &amp;amp; Sellami, A. (2005). Approximation by quantization of the filter process and applications to optimal stopping problems under partial observation. &lt;i&gt;Monte Carlo Methods and Applications&lt;/i&gt;, &lt;i&gt;11&lt;/i&gt;(1), 57–81. https://doi.org/10.1515/1569396054027283&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;gobet2005discretization&quot;&gt;Gobet, E., Pagès, G., Pham, H., &amp;amp; Printems, J. (2005). Discretization and simulation for a class of SPDEs with applications to Zakai and McKean-Vlasov equations. &lt;i&gt;Preprint, LPMA-958, Univ. Paris&lt;/i&gt;, &lt;i&gt;6&lt;/i&gt;.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;brandejsky2012numerical&quot;&gt;Brandejsky, A., de Saporta, B., &amp;amp; Dufour, F. (2012). Numerical method for expectations of piecewise deterministic Markov processes. &lt;i&gt;Communications in Applied Mathematics and Computational Science&lt;/i&gt;, &lt;i&gt;7&lt;/i&gt;(1), 63–104. https://doi.org/10.2140/camcos.2012.7.63&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;de2012numerical&quot;&gt;De Saporta, B., &amp;amp; Dufour, F. (2012). Numerical method for impulse control of piecewise deterministic Markov processes. &lt;i&gt;Automatica&lt;/i&gt;, &lt;i&gt;48&lt;/i&gt;(5), 779–793. https://doi.org/10.1016/j.automatica.2012.02.031&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;graf2000foundations&quot;&gt;Graf, S., &amp;amp; Luschgy, H. (2000). &lt;i&gt;Foundations of Quantization for Probability Distributions&lt;/i&gt;. Springer-Verlag. https://doi.org/10.1007/BFb0103945&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;pages2018numerical&quot;&gt;Pagès, G. (2018). &lt;i&gt;Numerical Probability: An Introduction with Applications to Finance&lt;/i&gt;. Springer. https://doi.org/10.1007/978-3-319-90276-0&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;lloyd1982least&quot;&gt;Lloyd, S. (1982). Least squares quantization in PCM. &lt;i&gt;IEEE Transactions on Information Theory&lt;/i&gt;, &lt;i&gt;28&lt;/i&gt;(2), 129–137.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;pages2003optimal&quot;&gt;Pagès, G., &amp;amp; Printems, J. (2003). Optimal quadratic quantization for numerics: the Gaussian case. &lt;i&gt;Monte Carlo Methods and Applications&lt;/i&gt;, &lt;i&gt;9&lt;/i&gt;(2), 135–165.&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;&lt;span id=&quot;fort1995convergence&quot;&gt;Fort, J.-C., &amp;amp; Pages, G. (1995). On the as convergence of the Kohonen algorithm with a general neighborhood function. &lt;i&gt;The Annals of Applied Probability&lt;/i&gt;, 1177–1216.&lt;/span&gt;&lt;/li&gt;&lt;/ol&gt;</content><author><name>Thibaut Montes, PhD</name></author><category term="Numerical Probability" /><category term="Optimization" /><category term="Optimal Quantization" /><summary type="html">In this post, I remind what is quadratic optimal quantizations. Then, I explain the two algorithms that were first devised in order to build an optimal quantization of a random vector $X$, namely: the fixed-point search called **Lloyd method** and the stochastic gradient descent known as **Competitive Learning Vector Quantization** (CLVQ). All explanations are accompanied by some code examples in Python and is available in the following Github repository: [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization).</summary></entry></feed>
