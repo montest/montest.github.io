@@ -13,6 +13,15 @@ tags:
   - Optimal Quantization
 ---
 
+
+Table of contents
+======
+{:.no_toc}
+
+
+* TOC
+{:toc}
+
 Introduction
 ======
 
@@ -25,7 +34,6 @@ In the 90s, optimal quantization was first used for numerical integration purpos
 First I remind what are a Voronoï tesselation, a quadratic optimal quantizer and their main properties. Then, I explain the two algorithms that were first devised in order to build an optimal quantization of a random vector $X$. All explanations are accompanied by some code examples in Python.
 
 All the code presented in this blog post is available in the following Github repository: [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization)
-
 
 
 Voronoï tesselation
@@ -42,6 +50,8 @@ I give below a more formal definition of a quantizer and its associated Voronoï
 
 
 ### Definition
+{:.no_toc}
+
 Let $$\Gamma_N = \big\{ x_1^N, \dots , x_N^N \big\} \subset \mathbb{R}^d$$ be a subset of size $N$, called **$N$-quantizer**. $x_i^N$ is a centroid (red dot in the above figure).
 
 A Borel partition $\big( C_i (\Gamma_N) \big)_{i =1, \dots, N}$ of $\mathbb{R}^d$ is a Voronoï partition of $\mathbb{R}^d$ induced by the $N$-quantizer $\Gamma_N$ if, for every $i \in \{ 1, \dots , N \}$,
@@ -89,6 +99,8 @@ Now, let us be a bit more precise and give some definitions of the main notation
 
 
 ### Definition
+{:.no_toc}
+
 A **Voronoï quantization** of $X$ by $\Gamma_N$, $\widehat X^N$, is defined as nearest neighbor projection of $X$ onto $\Gamma_N$ associated to a Voronoï partition $\big( C_i (\Gamma_N) \big)_{i =1, \dots, N}$ for the euclidean norm
 
 $$
@@ -109,6 +121,8 @@ Optimal quantization
 Now, we can define what an optimal quantization of $X$ is: we are looking for the best approximation of $X$ in the sense that we want to minimize the distance between $X$ and $\widehat X^N$. This distance is measured by the standard $L^2$ norm, denoted $\Vert X - \widehat X^N \Vert_{_2}$, and is called the mean quantization error. But, more often, the quadratic distortion defined as half of the square of the mean quantization error is used.
 
 ### Definition
+{:.no_toc}
+
 The quadratic distortion function at level $N$ induced by an $N$-tuple $x := (x_1^N, \dots, x_N^N) $ is given by
 
 $$
@@ -252,7 +266,7 @@ I display below some examples of 100 steps of the Lloyd method applied for a the
 
 <details open>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the randomized lloyd method with N=50 and M=5000
         </span>
     </summary>
@@ -264,7 +278,7 @@ I display below some examples of 100 steps of the Lloyd method applied for a the
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the randomized lloyd method with N=50 and M=10000 (Click to expand)
         </span>
     </summary>
@@ -276,7 +290,7 @@ I display below some examples of 100 steps of the Lloyd method applied for a the
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the randomized lloyd method with N=50 and M=20000 (Click to expand)
         </span>
     </summary>
@@ -288,7 +302,7 @@ I display below some examples of 100 steps of the Lloyd method applied for a the
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the randomized lloyd method with N=50 and M=50000 (Click to expand)
         </span>
     </summary>
@@ -300,7 +314,7 @@ I display below some examples of 100 steps of the Lloyd method applied for a the
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the randomized lloyd method with N=50 and M=100000 (Click to expand)
         </span>
     </summary>
@@ -312,6 +326,8 @@ I display below some examples of 100 steps of the Lloyd method applied for a the
 
 
 ### Remark
+{:.no_toc}
+
 In the previous code snippet, I use new random numbers, independent copies of $X$, for each batch of size $M$. However, it is also possible to generate only once a set of size $M$ of independent copies of $X$ and then in the loop that iterates `nbr_iter` times and use them for every batch, as suggested in subsection 6.3.5 of {% cite pages2018numerical %}. This amounts to consider the $M$-sample of the distribution of $X$ as the distribution to be quantized. This is stricly equivalent as using the **K-means** method for clustering the dataset of size $M$ into $N$ clusters.
 
 
@@ -397,7 +413,7 @@ I display below some examples of the CLVQ algorithm applied for a the quantizati
 
 <details open>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the CLVQ algorithm with N=50 and n=500000
         </span>
     </summary>
@@ -409,7 +425,7 @@ I display below some examples of the CLVQ algorithm applied for a the quantizati
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the CLVQ algorithm with N=50 and n=1000000 (Click to expand)
         </span>
     </summary>
@@ -421,7 +437,7 @@ I display below some examples of the CLVQ algorithm applied for a the quantizati
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the CLVQ algorithm with N=50 and n=2000000 (Click to expand)
         </span>
     </summary>
@@ -433,7 +449,7 @@ I display below some examples of the CLVQ algorithm applied for a the quantizati
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the CLVQ algorithm with N=50 and n=5000000 (Click to expand)
         </span>
     </summary>
@@ -445,7 +461,7 @@ I display below some examples of the CLVQ algorithm applied for a the quantizati
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the CLVQ algorithm with N=50 and n=10000000 (Click to expand)
         </span>
     </summary>
@@ -457,6 +473,8 @@ I display below some examples of the CLVQ algorithm applied for a the quantizati
 
 
 ### Remark
+{:.no_toc}
+
 Several developments of the CLVQ algorithm can be considered. For example, I could use the the averaging algorithm of Rupper and Polyak, yielding the averaged quantizer $\widetilde x^{[n+1]}$ defined by
 
 $$
