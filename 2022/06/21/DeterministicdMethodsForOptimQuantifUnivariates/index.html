@@ -40,7 +40,7 @@
 
 
 
-  <meta property="og:description" content=" In my previous blog post, I detailed the methdos used to build an optimal Voronoï quantizer of random vectors \(X\) whatever the dimension \(d\). In this post, I will focus on real valued random variables and present faster methods for dimension $1$. All the code presented in this blog post is available in the following Github repository: montest/deterministic-methods-optimal-quantization.">
+  <meta property="og:description" content=" In my previous blog post, I detailed the methods used to build an optimal Voronoï quantizer of random vectors \(X\) whatever the dimension \(d\). In this post, I will focus on real valued random variables and present faster methods for dimension $1$. All the code presented in this blog post is available in the following Github repository: montest/deterministic-methods-optimal-quantization.">
 
 
 
@@ -255,7 +255,7 @@
 
   <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
     <meta itemprop="headline" content="Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case">
-    <meta itemprop="description" content=" In my previous blog post, I detailed the methdos used to build an optimal Voronoï quantizer of random vectors \(X\) whatever the dimension \(d\). In this post, I will focus on real valued random variables and present faster methods for dimension $1$. All the code presented in this blog post is available in the following Github repository: montest/deterministic-methods-optimal-quantization.">
+    <meta itemprop="description" content=" In my previous blog post, I detailed the methods used to build an optimal Voronoï quantizer of random vectors \(X\) whatever the dimension \(d\). In this post, I will focus on real valued random variables and present faster methods for dimension $1$. All the code presented in this blog post is available in the following Github repository: montest/deterministic-methods-optimal-quantization.">
     <meta itemprop="datePublished" content="June 21, 2022">
     
 
@@ -826,7 +826,7 @@ $$ -->
 
 \[x^{[n+1]} = \Lambda \big( x^{[n]} \big)\]
 
-<p>where $x^{[n]}$ is the quantizer obtain after $n$ iterations of the algorithm. The pseudo-algorithm of the Lloyd method written on the vector \(x\) starting from a given quantizer $x^{0}$.</p>
+<p>where $x^{[n]}$ is the quantizer obtained after $n$ iterations of the algorithm. The pseudo-algorithm of the Lloyd method written on the vector \(x\) starting from a given quantizer $x^{0}$.</p>
 
 <p>Using this formulation, we can easily implement a deterministic version of the Lloyd algorithm <code class="language-plaintext highlighter-rouge">deterministic_lloyd_method</code> using the methods already implemented in <code class="language-plaintext highlighter-rouge">VoronoiQuantization1D</code> that takes as input <code class="language-plaintext highlighter-rouge">centroids</code>, a list of centroids of size $N$ <strong>sorted</strong> by values (from lower to bigger) and <code class="language-plaintext highlighter-rouge">nbr_iterations</code>, the number of fixed point iterations we want to do.</p>
 
@@ -853,7 +853,7 @@ $$ -->
 
 <h2 id="gradient-descent">Gradient descent</h2>
 
-<p>Another approach for building an optimal quantizer consists in minimizing directly Equation \ref{eq:distortion} using a gradient descent. I detail two algorithms below: Mean-field CLVQ and Newton Raphson.</p>
+<p>Another approach for building an optimal quantizer consists in minimizing directly Equation \ref{eq:distortion} using a gradient descent. I detail two algorithms below: Mean-field CLVQ and Newton-Raphson.</p>
 
 <h3 id="mean-field-clvq">Mean-field CLVQ</h3>
 
@@ -887,7 +887,7 @@ $$ -->
 
 <h3 id="newton-raphson-method">Newton-Raphson method</h3>
 
-<p>One can optimize the algorithm defined above using a second-order method where the step \(\gamma_{n+1}\) is chosen optimally at each step and is set as the inverse of the Hessian matrix of the distortion function. This method is known as the <strong>Newton-Raphson method</strong> and was first use in the case of optimal quantization in <a class="citation" href="#pages2003optimal">(Pagès &amp; Printems, 2003)</a>. Again, starting from a initial condition \(x^0\) at step \(0\), we have</p>
+<p>One can improve the rate of convergence of the algorithm defined above using a second-order gradient descent where the step \(\gamma_{n+1}\) is chosen optimally at each step and is set as the inverse of the Hessian matrix of the distortion function. This method is known as the <strong>Newton-Raphson method</strong> and was first use in the case of optimal quantization in <a class="citation" href="#pages2003optimal">(Pagès &amp; Printems, 2003)</a>. Again, starting from a initial condition \(x^0\) at step \(0\), we have</p>
 
 \[x^{[n+1]} = x^{[n]} - \Big( \nabla^2 \mathcal{Q}_{2,N} \big( x^{[n]} \big) \Big)^{-1} \Big( \nabla \mathcal{Q}_{2,N} \big( x^{[n]} \big) \Big)\]
 
