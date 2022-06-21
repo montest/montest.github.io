@@ -281,14 +281,14 @@ class NormalVoronoiQuantization(VoronoiQuantization1D):
     : $X = \exp( \mu + \sigma Z)$ with $\mu \in \mathbb{R}$ and $\sigma >0$ where $Z \sim \mathcal{N}(0,1)$
 </summary>
 
-If one needs to build an optimal quantizer $\widehat X_{\mu,\sigma}$ of a log-normal $X_{\mu,\sigma}=\exp( \mu + \sigma Z)$ with $\mu \neq 0$, then using the optimal quantizer $\widehat X_{0, \sigma}$ of $X_{0, \sigma}$, we have  $\widehat X_{\mu,\sigma} = \textrm{e}^{\mu} \widehat X_{0, \sigma}$ (using that same argument than in the normal case above).
+If one needs to build an optimal quantizer $\widehat X_{\mu,\sigma}$ of a log-normal $X_{\mu,\sigma}=\exp( \mu + \sigma Z)$ with $\mu \neq 0$, then using the optimal quantizer $\widehat X_{0, \sigma}$ of $X_{0, \sigma}$, we have  $\widehat X_{\mu,\sigma} = \textrm{e}^{\mu} \widehat X_{0, \sigma}$ (using the same argument as the one detailed in the normal case above).
 
 Let $\xi \in \mathbb{R}^{+*}$,
 
 $$
 	\begin{aligned}
-		      \varphi_{_X}(\xi)  & = \frac{1}{\xi \sigma} \varphi_{_Z} \Big( \frac{\log(\xi)-\mu}{\sigma} \Big) ,\qquad F_{_X}(\xi) = \mathcal{N} \Big( \frac{\log(\xi)-\mu}{\sigma} \Big) , \\
-		      \qquad K_{_X}(\xi) & = \textrm{e}^{\mu + \sigma^2/2} \mathcal{N} \Big( \frac{\log(\xi)-\mu - \sigma^2}{\sigma} \Big)
+		      \varphi_{_X}(\xi)  & = \frac{1}{\xi \sigma} \varphi_{_Z} \Big( \frac{\log(\xi)}{\sigma} \Big) ,\qquad F_{_X}(\xi) = \mathcal{N} \Big( \frac{\log(\xi)}{\sigma} \Big) , \\
+		      \qquad K_{_X}(\xi) & = \textrm{e}^{\sigma^2/2} \mathcal{N} \Big( \frac{\log(\xi) - \sigma^2}{\sigma} \Big)
     \end{aligned}
 $$
 
