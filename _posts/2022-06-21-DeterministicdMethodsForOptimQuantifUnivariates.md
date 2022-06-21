@@ -281,7 +281,7 @@ class NormalVoronoiQuantization(VoronoiQuantization1D):
     : $X = \exp( \mu + \sigma Z)$ with $\mu \in \mathbb{R}$ and $\sigma >0$ where $Z \sim \mathcal{N}(0,1)$
 </summary>
 
-If one needs to build an optimal quantizer $\widehat X_{\mu,\sigma}$ of a log-normal $X_{\mu,\sigma}=\exp( \mu + \sigma Z)$ with $\mu \neq 0$, then using the optimal quantizer $\widehat X_{0, \sigma}$ of $X_{0, \sigma}$, we have  $widehat X_{\mu,\sigma} = \textrm{e}^{\mu} \widehat X_{0, \sigma}$ (using that same argument than in the normal case above).
+If one needs to build an optimal quantizer $\widehat X_{\mu,\sigma}$ of a log-normal $X_{\mu,\sigma}=\exp( \mu + \sigma Z)$ with $\mu \neq 0$, then using the optimal quantizer $\widehat X_{0, \sigma}$ of $X_{0, \sigma}$, we have  $\widehat X_{\mu,\sigma} = \textrm{e}^{\mu} \widehat X_{0, \sigma}$ (using that same argument than in the normal case above).
 
 Let $\xi \in \mathbb{R}^{+*}$,
 
