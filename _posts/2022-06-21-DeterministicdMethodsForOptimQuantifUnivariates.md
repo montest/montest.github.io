@@ -3,7 +3,7 @@ title: 'Deterministic Numerical Methods for Optimal Voronoï Quantization: The o
 collection: blog posts
 excerpt: "
 <img align='left' src='/images/posts/quantization/univariate/distortion_normal_convergence.gif' width='300' >
-In my previous blog post, I detailed the methdos used to build an optimal Voronoï quantizer of random vectors $$X$$ whatever the dimension $$d$$. In this post, I will focus on real valued random variables and present faster methods for dimension $1$. All the code presented in this blog post is available in the following Github repository: [montest/deterministic-methods-optimal-quantization](https://github.com/montest/deterministic-methods-optimal-quantization)."
+In my previous blog post, I detailed the methods used to build an optimal Voronoï quantizer of random vectors $$X$$ whatever the dimension $$d$$. In this post, I will focus on real valued random variables and present faster methods for dimension $1$. All the code presented in this blog post is available in the following Github repository: [montest/deterministic-methods-optimal-quantization](https://github.com/montest/deterministic-methods-optimal-quantization)."
 date: 2022-06-21
 permalink:  /:year/:month/:day/:title/
 bibliography: bibli.bib  
@@ -586,7 +586,7 @@ $$
 	x^{[n+1]} = \Lambda \big( x^{[n]} \big)
 $$
 
-where $x^{[n]}$ is the quantizer obtain after $n$ iterations of the algorithm. The pseudo-algorithm of the Lloyd method written on the vector $$x$$ starting from a given quantizer $x^{0}$.
+where $x^{[n]}$ is the quantizer obtained after $n$ iterations of the algorithm. The pseudo-algorithm of the Lloyd method written on the vector $$x$$ starting from a given quantizer $x^{0}$.
 
 
 Using this formulation, we can easily implement a deterministic version of the Lloyd algorithm `deterministic_lloyd_method` using the methods already implemented in `VoronoiQuantization1D` that takes as input `centroids`, a list of centroids of size $N$ **sorted** by values (from lower to bigger) and `nbr_iterations`, the number of fixed point iterations we want to do.
@@ -617,7 +617,7 @@ An interesting fact about the Lloyd method, is that each step of the fixed-point
 
 ## Gradient descent
 
-Another approach for building an optimal quantizer consists in minimizing directly Equation \ref{eq:distortion} using a gradient descent. I detail two algorithms below: Mean-field CLVQ and Newton Raphson.
+Another approach for building an optimal quantizer consists in minimizing directly Equation \ref{eq:distortion} using a gradient descent. I detail two algorithms below: Mean-field CLVQ and Newton-Raphson.
 
 
 ### Mean-field CLVQ
@@ -655,7 +655,7 @@ class VoronoiQuantization1D(ABC):
 
 ### Newton-Raphson method
 
-One can optimize the algorithm defined above using a second-order method where the step $$\gamma_{n+1}$$ is chosen optimally at each step and is set as the inverse of the Hessian matrix of the distortion function. This method is known as the **Newton-Raphson method** and was first use in the case of optimal quantization in {% cite pages2003optimal %}. Again, starting from a initial condition $$x^0$$ at step $$0$$, we have
+One can improve the rate of convergence of the algorithm defined above using a second-order gradient descent where the step $$\gamma_{n+1}$$ is chosen optimally at each step and is set as the inverse of the Hessian matrix of the distortion function. This method is known as the **Newton-Raphson method** and was first use in the case of optimal quantization in {% cite pages2003optimal %}. Again, starting from a initial condition $$x^0$$ at step $$0$$, we have
 
 $$
 	x^{[n+1]} = x^{[n]} - \Big( \nabla^2 \mathcal{Q}_{2,N} \big( x^{[n]} \big) \Big)^{-1} \Big( \nabla \mathcal{Q}_{2,N} \big( x^{[n]} \big) \Big)
