@@ -286,7 +286,22 @@
       
 
       <section class="page__content" itemprop="text">
-        <h1 id="introduction">Introduction</h1>
+        <h1 class="no_toc" id="table-of-contents">Table of contents</h1>
+
+<ul id="markdown-toc">
+  <li><a href="#introduction" id="markdown-toc-introduction">Introduction</a></li>
+  <li><a href="#voronoï-tesselation" id="markdown-toc-voronoï-tesselation">Voronoï tesselation</a></li>
+  <li><a href="#voronoï-quantization" id="markdown-toc-voronoï-quantization">Voronoï quantization</a></li>
+  <li><a href="#optimal-quantization" id="markdown-toc-optimal-quantization">Optimal quantization</a></li>
+  <li><a href="#how-to-build-an-optimal-quantizer" id="markdown-toc-how-to-build-an-optimal-quantizer">How to build an optimal quantizer?</a>    <ul>
+      <li><a href="#lloyd-method" id="markdown-toc-lloyd-method">Lloyd method</a></li>
+      <li><a href="#competitive-learning-vector-quantization" id="markdown-toc-competitive-learning-vector-quantization">Competitive Learning Vector Quantization</a></li>
+    </ul>
+  </li>
+  <li><a href="#references" id="markdown-toc-references">References</a></li>
+</ul>
+
+<h1 id="introduction">Introduction</h1>
 
 <p>In this post, I describe the two main Monte-Carlo simulation-based procedures used to build an optimal Voronoï quantizer of $X$. <strong>Optimal quantization</strong> was first introduced in <a class="citation" href="#sheppard1897calculation">(Sheppard, 1897)</a>, where the author focused on the optimal quantization of the uniform distribution over unit hypercubes. It was then extended to more general laws motivated by applications to signal transmission in the Bell Laboratory in the 1950s (see <a class="citation" href="#gersho1982special">(Gersho &amp; Gray, 1982)</a>).</p>
 
@@ -308,7 +323,8 @@
 
 <p>I give below a more formal definition of a quantizer and its associated Voronoï tesselation.</p>
 
-<h3 id="definition">Definition</h3>
+<h3 class="no_toc" id="definition">Definition</h3>
+
 <p>Let \(\Gamma_N = \big\{ x_1^N, \dots , x_N^N \big\} \subset \mathbb{R}^d\) be a subset of size $N$, called <strong>$N$-quantizer</strong>. $x_i^N$ is a centroid (red dot in the above figure).</p>
 
 <p>A Borel partition $\big( C_i (\Gamma_N) \big)_{i =1, \dots, N}$ of $\mathbb{R}^d$ is a Voronoï partition of $\mathbb{R}^d$ induced by the $N$-quantizer $\Gamma_N$ if, for every $i \in { 1, \dots , N }$,</p>
@@ -349,7 +365,8 @@
 
 <p>Now, let us be a bit more precise and give some definitions of the main notations use in this post.</p>
 
-<h3 id="definition-1">Definition</h3>
+<h3 class="no_toc" id="definition-1">Definition</h3>
+
 <p>A <strong>Voronoï quantization</strong> of $X$ by $\Gamma_N$, $\widehat X^N$, is defined as nearest neighbor projection of $X$ onto $\Gamma_N$ associated to a Voronoï partition $\big( C_i (\Gamma_N) \big)_{i =1, \dots, N}$ for the euclidean norm</p>
 
 \[\widehat X^N := \textrm{Proj}_{\Gamma_N} (X) = \sum_{i = 1}^N x_i^N \mathbb{1}_{X \in C_i (\Gamma_N) }\]
@@ -362,7 +379,8 @@
 
 <p>Now, we can define what an optimal quantization of $X$ is: we are looking for the best approximation of $X$ in the sense that we want to minimize the distance between $X$ and $\widehat X^N$. This distance is measured by the standard $L^2$ norm, denoted $\Vert X - \widehat X^N \Vert_{_2}$, and is called the mean quantization error. But, more often, the quadratic distortion defined as half of the square of the mean quantization error is used.</p>
 
-<h3 id="definition-2">Definition</h3>
+<h3 class="no_toc" id="definition-2">Definition</h3>
+
 <p>The quadratic distortion function at level $N$ induced by an $N$-tuple $x := (x_1^N, \dots, x_N^N) $ is given by</p>
 
 \[\mathcal{Q}_{2,N} : x \longmapsto \frac{1}{2} \mathbb{E} \Big[ \min_{i = 1, \dots, N} \vert X - x_i^N \vert^2 \Big] = \frac{1}{2} \mathbb{E} \Big[ \textrm{dist} (X, \Gamma_N )^2 \Big] = \frac{1}{2} \Vert X - \widehat X^N \Vert_{_2}^2 .\]
@@ -474,7 +492,7 @@
 
 <details open="">
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the randomized lloyd method with N=50 and M=5000
         </span>
     </summary>
@@ -486,7 +504,7 @@
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the randomized lloyd method with N=50 and M=10000 (Click to expand)
         </span>
     </summary>
@@ -498,7 +516,7 @@
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the randomized lloyd method with N=50 and M=20000 (Click to expand)
         </span>
     </summary>
@@ -510,7 +528,7 @@
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the randomized lloyd method with N=50 and M=50000 (Click to expand)
         </span>
     </summary>
@@ -522,7 +540,7 @@
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the randomized lloyd method with N=50 and M=100000 (Click to expand)
         </span>
     </summary>
@@ -532,7 +550,8 @@
     </center>
 </details>
 
-<h3 id="remark">Remark</h3>
+<h3 class="no_toc" id="remark">Remark</h3>
+
 <p>In the previous code snippet, I use new random numbers, independent copies of $X$, for each batch of size $M$. However, it is also possible to generate only once a set of size $M$ of independent copies of $X$ and then in the loop that iterates <code class="language-plaintext highlighter-rouge">nbr_iter</code> times and use them for every batch, as suggested in subsection 6.3.5 of <a class="citation" href="#pages2018numerical">(Pagès, 2018)</a>. This amounts to consider the $M$-sample of the distribution of $X$ as the distribution to be quantized. This is stricly equivalent as using the <strong>K-means</strong> method for clustering the dataset of size $M$ into $N$ clusters.</p>
 
 <h2 id="competitive-learning-vector-quantization">Competitive Learning Vector Quantization</h2>
@@ -606,7 +625,7 @@
 
 <details open="">
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the CLVQ algorithm with N=50 and n=500000
         </span>
     </summary>
@@ -618,7 +637,7 @@
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the CLVQ algorithm with N=50 and n=1000000 (Click to expand)
         </span>
     </summary>
@@ -630,7 +649,7 @@
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the CLVQ algorithm with N=50 and n=2000000 (Click to expand)
         </span>
     </summary>
@@ -642,7 +661,7 @@
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the CLVQ algorithm with N=50 and n=5000000 (Click to expand)
         </span>
     </summary>
@@ -654,7 +673,7 @@
 
 <details>
     <summary>
-        <span style="color:#5DADE2;font-weight:bold">
+        <span style="color:#66CCFF;font-weight:bold">
             100 steps of the CLVQ algorithm with N=50 and n=10000000 (Click to expand)
         </span>
     </summary>
@@ -664,7 +683,8 @@
     </center>
 </details>
 
-<h3 id="remark-1">Remark</h3>
+<h3 class="no_toc" id="remark-1">Remark</h3>
+
 <p>Several developments of the CLVQ algorithm can be considered. For example, I could use the the averaging algorithm of Rupper and Polyak, yielding the averaged quantizer $\widetilde x^{[n+1]}$ defined by</p>
 
 \[\left\{
@@ -758,12 +778,73 @@
       
 
 
+  <nav class="pagination">
+    
+      <a href="#" class="pagination--pager disabled">Previous</a>
+    
+    
+      <a href="https://montest.github.io/2022/06/21/DeterministicdMethodsForOptimQuantifUnivariates/" class="pagination--pager" title="Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
+">Next</a>
+    
+  </nav>
+
     </div>
 
     
   </article>
 
   
+  
+    <div class="page__related">
+      
+        <h4 class="page__related-title">You May Also Enjoy</h4>
+      
+      <div class="grid__wrapper">
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2022/06/21/DeterministicdMethodsForOptimQuantifUnivariates/" rel="permalink">Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  21 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2022-06-21T00:00:00+02:00">June 21, 2022</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/univariate/distortion_normal_convergence.gif" width="150" /> In my previous blog post, I detailed the methdos used to build an optimal Voronoï quantizer of random vectors \(X\) whatever the dimension \(d\). In this post, I will focus on real valued random variables and present faster methods for dimension $1$. All the code presented in this blog post is available in the following Github repository: <a href="https://github.com/montest/deterministic-methods-optimal-quantization">montest/deterministic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+        
+      </div>
+    </div>
   
 
 </div>
