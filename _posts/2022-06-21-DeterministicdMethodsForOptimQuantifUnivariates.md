@@ -410,11 +410,11 @@ class ExponentialVoronoiQuantization(VoronoiQuantization1D):
 
     # Probabilty Density Function
     def pdf(self, x: Union[float, np.ndarray]):
-        return 1. - np.exp(-self.lambda_*x)
+        return self.lambda_ * np.exp(-self.lambda_*x)
 
     # Cumulative Distribution Function
     def cdf(self, x: Union[float, np.ndarray]):
-        return self.lambda_ * np.exp(-self.lambda_*x)
+        return 1. - np.exp(-self.lambda_*x)
 
     # First Partial Moment
     def fpm(self, x: Union[float, np.ndarray]):
