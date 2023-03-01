@@ -12,7 +12,7 @@ presentationurl: /files/presentation_padova_statio_heston.pdf
 
 I present a work (still in progress) where we introduce a randomized/stationary version of the well known Heston model. This model allows us to produce steeper implied volatilities for short maturities options. We propose numerical solutions based on optimal quantization for the pricing of European, Bermudan and Barrier options.
 
-This paper is a joined work with [Vincent Lemaire](https://www.lpsm.paris/pageperso/lemaire/) and [Gilles Pagès](http://www.lpsm.paris/dw/doku.php?id=users:pages:index).
+This paper is a joined work with [Vincent Lemaire](https://perso.lpsm.paris/~vlemaire/site.html) and [Gilles Pagès](https://www.lpsm.paris/dw/doku.php?id=users:pages:index).
 
 Presentation accessible [here]({{ page.presentationurl }})!
 

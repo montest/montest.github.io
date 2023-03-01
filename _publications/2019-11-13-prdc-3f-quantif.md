@@ -8,7 +8,7 @@ paperurl: /files/PRDC_3F.pdf
 venue: 'Journal of Computational Finance'
 ---
 
-This paper is a joined work with [Jean-Michel Fayolle](https://fr.linkedin.com/in/jean-michel-fayolle-68964930), [Vincent Lemaire](https://www.lpsm.paris/pageperso/lemaire/) and [Gilles Pagès](http://www.lpsm.paris/dw/doku.php?id=users:pages:index).
+This paper is a joined work with [Jean-Michel Fayolle](https://fr.linkedin.com/in/jean-michel-fayolle-68964930), [Vincent Lemaire](https://perso.lpsm.paris/~vlemaire/site.html) and [Gilles Pagès](https://www.lpsm.paris/dw/doku.php?id=users:pages:index).
 
 This paper proposes two numerical solution based on Product Optimal Quantization for the pricing of Foreign Exchange (FX) linked long term Bermudan options e.g. Bermudan Power Reverse Dual Currency options, where we take into account stochastic domestic and foreign interest rates on top of stochastic FX rate, hence we consider a 3-factor model. For these two numerical methods, we give an estimation of the $L^2$-error induced by such approximations and we illustrate them with market-based examples that highlight the speed of such methods.
 
