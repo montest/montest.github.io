@@ -42,11 +42,9 @@ Short Reminder
 
 In this part, I quickly remind how to build an optimal quantizer using the Monte-Carlo simulation-based Lloyd procedure with a focus on the $1$-dimensional case. To get more background on the notations and the theory, do not hesitate to check-out my previous blog articles on Stochastic and Deterministic methods for building optimal quantizers.
 
-### Voronoï Quantization
+### Voronoï Quantization in dimension 1
 
-A Voronoï tesselation is a way, given a set of points called centroids in $\mathbb{R}$, to divide the real line into regions in such a way that: for each cell, all the points in it are closer to the centroid associated to the cell than any other centroid. 
-
-In particular, given a quantizer of size N: $\Gamma_N = \big\{ x_{1}^{N}, \dots , x_{N}^{N} \big\}$ where $x_i^{N}$ are the centroids. If we consider that the centroids $(x_i^{N})_i$ are ordered: $$x_1^{N} < x_2^{N} < \cdots < x_{N-1}^{N} < x_{N}^{N} $$, then the Voronoï cells $C_i (\Gamma_N)$ are intervals in $\mathbb{R}$ and are defined by
+Given a quantizer of size N: $$\Gamma_N = \big\{ x_{1}^{N}, \dots , x_{N}^{N} \big\}$$ where $x_i^{N}$ are the centroids. Keeping in mind that we are in the $1$-dimensional, if we consider that the centroids $(x_i^{N})_i$ are ordered: $$x_1^{N} < x_2^{N} < \cdots < x_{N-1}^{N} < x_{N}^{N}$$, then the Voronoï cells $C_i (\Gamma_N)$ are intervals in $\mathbb{R}$ and are defined by
 
 $$
 	C_i ( \Gamma_N ) =
@@ -68,10 +66,7 @@ $$
     x_{1/2}^N := \textrm{inf} (\textrm{supp} (\mathbb{P}_{_{X}})) \, \textrm{ and } \, x_{N+1/2}^N := \textrm{sup} (\textrm{supp} (\mathbb{P}_{_{X}})).
 $$
 
-
-Now, going back to our initial problem: let $X$ be a random variable. In simple terms, an optimal quantization of a random vector $X$ is the best approximation of $X$ by a discrete random vector $\widehat X^N$ with cardinality at most $N$.
-
-More precisely, a **Voronoï quantization** of $X$ by $\Gamma_{N}$, $\widehat X^N$, is defined as nearest neighbor projection of $X$ onto $\Gamma_{N}$ associated to a Voronoï partition $\big( C_{i} (\Gamma_{N}) \big)_{i =1, \dots, N}$ for the euclidean norm
+Now, let $X$ be a random variable, a **Voronoï quantization** of $X$ by $\Gamma_{N}$, $\widehat X^N$, is defined as nearest neighbor projection of $X$ onto $\Gamma_{N}$ associated to a Voronoï partition $\big( C_{i} (\Gamma_{N}) \big)_{i =1, \dots, N}$ for the euclidean norm
 
 $$
 	\widehat X^N := \textrm{Proj}_{\Gamma_{N}} (X) = \sum_{i = 1}^N x_i^N \mathbb{1}_{X \in C_{i} (\Gamma_N) }
@@ -84,111 +79,33 @@ $$
 $$
 
 
-For example, for a list of centroid `centroids` ( $\Gamma_N$) and a given point `p`, the closest centroid to `p` can be find using the following method that returns the index `i` of the closest centroid and the distance between this centroid `x_i` and `p`.
-
-````python
-from typing import List
-Point = np.ndarray
-
-def find_closest_centroid(centroids: List[Point], p: Point):
-    index_closest_centroid = -1
-    min_dist = sys.float_info.max
-    for i, x_i in enumerate(centroids):
-        dist = np.linalg.norm(x_i - p)
-        if dist < min_dist:
-            index_closest_centroid = i
-            min_dist = dist
-    return index_closest_centroid, min_dist
-````
-
-
 ### Optimal quantization
 
 
-Now, we can define what an optimal quantization of $X$ is: we are looking for the best approximation of $X$ in the sense that we want to minimize the distance between $X$ and $\widehat X^N$. This distance is measured by the standard $L^2$ norm, denoted $\Vert X - \widehat X^N \Vert_{_2}$, and is called the mean quantization error. But, more often, the quadratic distortion defined as half of the square of the mean quantization error is used.
-
-#### Definition
-{:.no_toc}
-
-The quadratic distortion function at level $N$ induced by an $N$-tuple $x := (x_1^N, \dots, x_N^N)$ is given by
+In order to build an optimal quantizer of $X$, we are looking for the best approximation of $X$ in the sense that we want to find the quantizer $\widehat X^N$ which is the $$\arg \min$$ of the quadratic distortion function at level $N$ induced by an $N$-tuple $x := (x_1^N, \dots, x_N^N)$ given by
 
 $$
-	\mathcal{Q}_{2,N} : x \longmapsto \frac{1}{2} \mathbb{E} \Big[ \min_{i = 1, \dots, N} \vert X - x_i^N \vert^2 \Big] = \frac{1}{2} \mathbb{E} \Big[ \textrm{dist} (X, \Gamma_N )^2 \Big] = \frac{1}{2} \Vert X - \widehat X^N \Vert_{_2}^2 .
-$$
-
-Of course, the above result can be extended to the $L^p$ case by considering the $L^p$-mean quantization error in place of the quadratic one.
-
-
-
-Thus, we are looking for quantizers $\widehat X^N$ taking value in grids $\Gamma_N$ of size $N$ which minimize the quadratic distortion
-
-$$
-	\min_{\Gamma_N \subset \mathbb{R}^d, \vert \Gamma_N \vert \leq N } \Vert X - \widehat X^N \Vert_{_2}^2.
+	\mathcal{Q}_{2,N} : x \longmapsto \frac{1}{2} \Vert X - \widehat X^N \Vert_{_2}^2 .
 $$
 
 
-Classical theoretical results on optimal quantizer can be found in {% cite graf2000foundations pages2018numerical %}. Check those books if you are interested in results on existence and uniqueness of optimal quantizers or if you want further details on the asymptotic behavior of the distortion (such as Zador's Theorem).
+### Randomized Lloyd algorithm
 
-### How to build an optimal quantizer?
-
-In this part, I will focus on how to build an optimal quadratic quantizer or, equivalently, find a solution to the following minimization problem
-
-$$
-	\textrm{arg min}_{(\mathbb{R}^d)^N} \mathcal{Q}_{2,N}.
-$$
-
-For that, let's differentiate the distortion function $\mathcal{Q}_{2,N}$. The gradient $\nabla \mathcal{Q}_{2,N}$ is given by
-
-$$
-\nabla \mathcal{Q}_{2,N} (x) = \bigg[ \int_{C_i (\Gamma_N)} (x_i^N - \xi ) \mathbb{P}_{_{X}} (d \xi) \bigg]_{i = 1, \dots, N } = \Big[ \mathbb{E}\big[ \mathbb{1}_{X \in C_i (\Gamma_N)} ( x_i^N - X ) \big] \Big]_{i = 1, \dots, N }.
-$$
-
-The latter expression is useful for numerical methods based on deterministic procedures while the former featuring a local gradient is handy when we work with stochastic algorithms, which is the case in this post.
-
-Two main stochastic algorithms exist for building an optimal quantizer in $\mathbb{R}^d$. The first is a fixed-point search, called Lloyd method, see {% cite lloyd1982least pages2003optimal%} or **K-means** in the case of unsupervised learning and the second is a stochastic gradient descent, called Competitive Learning Vector Quantization (CLVQ) or also Kohonen algorithm see {% cite pages1998space fort1995convergence %}.
-
-
-
-Lloyd method
-------
-
-Starting from the previous equation, when we search a zero of the gradient, we derive a fixed-point problem. Let $\Lambda_i : \mathbb{R}^N \mapsto \mathbb{R}$ defined by
-
-$$
-\Lambda_i (x) = \frac{\mathbb{E}\big[ X \mathbb{1}_{ X \in C_i (\Gamma_N)} \big]}{\mathbb{P} \big( X \in C_i (\Gamma_N) \big)}
-$$
-
-then
-
-$$
-\nabla \mathcal{Q}_{2,N} (x) = 0 \quad \iff \quad \forall i = 1, \dots, N  \qquad x_i = \Lambda_i ( x ).
-$$
-
-Hence, from this equality, we deduce a fixed-point search algorithm. This method, known as the **Lloyd method**, was first devised by Lloyd in {% cite lloyd1982least %}. Let $x^{[n]}$ be the quantizer of size $N$ obtained after $n$ iterations, the Lloyd method with initial condition $x^0$ is defined as follows
-
-$$
-x^{[n+1]} = \Lambda \big( x^{[n]} \big).
-$$
-
-In our setup, in absence of deterministic methods for computing the expectations, they will be approximated using Monte-Carlo simulation. Let $\xi_1, \dots, \xi_M$ be independent copies of $X$, the stochastic version of $\Lambda_i$  is defined by
-
-$$
-\Lambda_i^M ( x ) = \frac{\displaystyle \sum_{m=1}^M \xi_m \mathbb{1}_{ \big\{ \textrm{Proj}_{\Gamma_N} (\xi_m) = x_i^N \big\} } }{\displaystyle \sum_{m=1}^M \mathbb{1}_{ \big\{ \textrm{Proj}_{\Gamma_N} (\xi_m) = x_i^N \big\} } }. % \qquad \mbox{with} \qquad \Gamma_N = \{ x_1^N, \dots, x_N^N \}
-$$
-
-Hence, the $n+1$ iteration of the Randomized Lloyd method is given by
+One of the first method deployed in order to build optimal quantizers was the Lloyd method, which is a fixed-point search algorithm. Let $x^{[n]}$ be the quantizer of size $N$ obtained after $n$ iterations, the Randomized Lloyd method with initial condition $x^0$ is defined as follows
 
 $$
 x^{[n+1]} = \Lambda^M \big( x^{[n]} \big).
 $$
 
-During the optimization of the quantizer it is possible to compute the weight $p_i^N$ and the local distortion $q_i^N$ associated to a centroid defined by
+where
 
 $$
-p_i^N = \mathbb{P} \big( X \in C_i (\Gamma_N) \big) \quad \mbox{ and } \quad q_i^N = \mathbb{E}\big[ (X - x_i^N)^2 \mathbb{1}_{X \in C_i (\Gamma_N)} \big].
+\Lambda_i^M ( x ) = \frac{\displaystyle \sum_{m=1}^M \xi_m \mathbb{1}_{ \big\{ \textrm{Proj}_{\Gamma_N} (\xi_m) = x_i^N \big\} } }{\displaystyle \sum_{m=1}^M \mathbb{1}_{ \big\{ \textrm{Proj}_{\Gamma_N} (\xi_m) = x_i^N \big\} } }. % \qquad \mbox{with} \qquad \Gamma_N = \{ x_1^N, \dots, x_N^N \}
 $$
 
-I give below a Python code example for the Randomized Lloyd method that takes as input the quantizer $x^{[n]}$ and $M$ samples $(\xi_m)_{m = 1, \dots, M}$ of $X$ and returns $x^{[n+1]}$, the weights and the local-distortion approximated using Monte-Carlo.
+with $\xi_1, \dots, \xi_M$ be independent copies of $X$.
+
+I detail below a Python code example, which is a optimized version of the code I detailed in my [previous blog post][blog_post_stochastic_methods] of the randomized Lloyd method using numpy.
 
 ```python
 import numpy as np
