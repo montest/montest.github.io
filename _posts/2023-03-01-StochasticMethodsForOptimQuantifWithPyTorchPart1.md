@@ -33,14 +33,14 @@ Table of contents
 Introduction
 ======
 
-In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm. I compare the mono-threaded implementation I made in numpy in a [previous blog post][blog_post_stochastic_methods] with the PyTorch version and study how it scales.
+In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm. I compare the implementation I made in numpy in a [previous blog post][blog_post_stochastic_methods] with the PyTorch version and study how it scales.
 
 All the code presented in this blog post is available in the following Github repository: [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization)
 
 Short Reminder
 ======
 
-In this part, I quickly remind how to build an optimal quantizer using the Monte-Carlo simulation-based Lloyd procedure with a focus on the $1$-dimensional case. To get more background on the notations and the theory, do not hesitate to check-out my previous blog articles on Stochastic and Deterministic methods for building optimal quantizers.
+In this part, I quickly remind how to build an optimal quantizer using the Monte-Carlo simulation-based Lloyd procedure with a focus on the $1$-dimensional case. To get more background on the notations and the theory, do not hesitate to check-out my previous blog articles on [Stochastic][blog_post_stochastic_methods] and [Deterministic][blog_post_deterministic_methods] methods for building optimal quantizers.
 
 ### Voronoï Quantization in dimension 1
 
@@ -105,62 +105,117 @@ $$
 
 with $\xi_1, \dots, \xi_M$ be independent copies of $X$.
 
-I detail below a Python code example, which is a optimized version of the code I detailed in my [previous blog post][blog_post_stochastic_methods] of the randomized Lloyd method using numpy.
+
+Numpy Implementation
+=======
+
+
+I detail below a Python code example using numpy, which is an optimized version of the code I detailed in my [previous blog post][blog_post_stochastic_methods] of the randomized Lloyd method. It applies `nbr_iter` iterations of the fixed point function in order to build an optimal quantizer of a gaussian random variable where you can select `N` the size of the optimal quantizer, `M` the number of sample you want to generate.
+
+
 
 ```python
 import numpy as np
-
-def fixed_point_iteration(centroids, xs: List[Point]):
-    N = len(centroids)  # Size of the quantizer
-    M = len(xs)  # Number of samples
-
-    # Initialization step
-    local_mean = np.zeros((N, 2))
-    local_count = np.zeros(N)
-    local_dist = 0.
-
-    for x in xs:
-        # find the centroid which is the closest to sample x
-        index, l2_dist = find_closest_centroid(centroids, x)
-
-        # Compute local mean, proba and distortion
-        local_mean[index] = local_mean[index] + x
-        local_dist += l2_dist ** 2  # Computing distortion
-        local_count[index] += 1  # Count number of samples falling in cell 'index'
-
-    for i in range(N):
-        centroids[i] = local_mean[i] / local_count[i] if local_count[i] > 0 else centroids[i]
-
-    probas = local_count / float(M)
-    distortion = local_dist / float(2*M)
-
-    return centroids, probas, distortion
-```
-
-Then, using `fixed_point_iteration` and starting from a initial guess $x^0$ of size $N$, we can build an optimal quantizer of a random vector $X$ as long as we have access to a random generator of $X$.
-
-Here is a small code example for building an optimal quantizer of a gaussian random vector in dimension 2 where you can select `N` the size of the optimal quantizer, `M` the number of sample you want to generate and `nbr_iter` the number of fixed-point iterations you want to do using `M` samples each time.
-
-
-```python
 from tqdm import trange
 
-def lloyd_method(N: int, M: int, nbr_iter: int):
-    centroids = np.random.normal(0, 1, size=[N, 2])  # Initialize the Voronoi Quantizer
+def lloyd_method_dim_1(N: int, M: int, nbr_iter: int, seed: int = 0):
+    """
+    Apply `nbr_iter` iterations of the Randomized Lloyd algorithm in order to build an optimal quantizer of size `N`
+    for a Gaussian random variable. This implementation is done using numpy.
 
-    with trange(nbr_iter, desc='Lloyd method') as t:
+    N: number of centroids
+    M: number of samples to generate
+    nbr_iter: number of iterations of fixed point search
+    seed: numpy seed for reproducibility
+
+    Returns: centroids, probabilities associated to each centroid and distortion
+    """
+    np.random.seed(seed)  # Set seed in order to be able to reproduce the results
+
+    # Draw M samples of gaussian variable
+    xs = np.random.normal(0, 1, size=M)
+
+    # Initialize the Voronoi Quantizer randomly and sort it
+    centroids = np.random.normal(0, 1, size=N)
+    centroids.sort(axis=0)
+
+    with trange(nbr_iter, desc='Lloyd method (numpy)') as t:
         for step in t:
+            # Compute the vertices that separate the centroids
+            vertices = 0.5 * (centroids[:-1] + centroids[1:])
 
-            xs = np.random.normal(0, 1, size=[M, 2])  # Draw M samples of gaussian vectors
+            # Find the index of the centroid that is closest to each sample
+            index_closest_centroid = np.sum(xs[:, None] >= vertices[None, :], axis=1)
 
-            centroids, probas, distortion = fixed_point_iteration(centroids, xs)  # Apply fixed-point search iteration
-            t.set_postfix(distortion=distortion)
+            # Compute the new quantization levels as the average of the samples assigned to each centroid
+            centroids = np.array([np.mean(xs[index_closest_centroid == i], axis=0) for i in range(N)])
 
-            # This is only useful when plotting the results
-            save_results(centroids, probas, distortion, step, M, method='lloyd')
+    # Compute, for each sample, the distance to each centroid
+    dist_centroids_points = np.linalg.norm(centroids.reshape((N, 1)) - xs.reshape(M, 1, 1), axis=2)
+    # Find the index of the centroid that is closest to each sample using the previously computed distances
+    index_closest_centroid = dist_centroids_points.argmin(axis=1)
+    # Compute the probability of each centroid
+    probabilities = np.bincount(index_closest_centroid) / float(M)
+    # Compute the final distortion between the samples and the quantizer
+    distortion = np.mean(dist_centroids_points[np.arange(M), index_closest_centroid] ** 2) * 0.5
+    return centroids, probabilities, distortion
+```
 
-    make_gif(get_directory(N, M, method='lloyd'))
-    return centroids, probas, distortion
+The advantage of this optimized version is twofold. First, it drastically reduces the computation time in order to build an optimal quantizer. Second, this new version is written is a more pythonic way compared to the one detailed in my [previous article][blog_post_stochastic_methods]. This simplifies greatly the conversion of this code to PyTorch, as you can see in the next section.
+
+
+PyTorch Implementation
+=======
+
+**TODO: add details**
+
+```python
+def lloyd_method_dim_1_pytorch(N: int, M: int, nbr_iter: int, device: str, seed: int = 0):
+    """
+    Apply `nbr_iter` iterations of the Randomized Lloyd algorithm in order to build an optimal quantizer of size `N`
+    for a Gaussian random variable. This implementation is done using torch.
+
+    N: number of centroids
+    M: number of samples to generate
+    nbr_iter: number of iterations of fixed point search
+    device: device on which perform the computations: "cuda" or "cpu"
+    seed: torch seed for reproducibility
+
+    Returns: centroids, probabilities associated to each centroid and distortion
+    """
+    torch.manual_seed(seed=seed)  # Set seed in order to be able to reproduce the results
+
+    with torch.no_grad():
+        # Draw M samples of gaussian variable
+        xs = torch.randn(M)
+        # xs = torch.tensor(torch.randn(M), dtype=torch.float32)
+        xs = xs.to(device)  # send samples to correct device
+
+        # Initialize the Voronoi Quantizer randomly
+        centroids = torch.randn(N)
+        centroids, index = centroids.sort()
+        centroids = centroids.to(device)  # send centroids to correct device
+
+        with trange(nbr_iter, desc=f'Lloyd method (pytorch: {device})') as t:
+            for step in t:
+                # Compute the vertices that separate the centroids
+                vertices = 0.5 * (centroids[:-1] + centroids[1:])
+
+                # Find the index of the centroid that is closest to each sample
+                index_closest_centroid = torch.sum(xs[:, None] >= vertices[None, :], dim=1).long()
+
+                # Compute the new quantization levels as the mean of the samples assigned to each level
+                centroids = torch.tensor([torch.mean(xs[index_closest_centroid == i]) for i in range(N)]).to(device)
+
+        # Compute, for each sample, the distance to each centroid
+        dist_centroids_points = torch.norm(centroids - xs.reshape(M, 1, 1), dim=1)
+        # Find the index of the centroid that is closest to each sample using the previously computed distances
+        index_closest_centroid = dist_centroids_points.argmin(dim=1)
+        # Compute the probability of each centroid
+        probabilities = torch.bincount(index_closest_centroid).to('cpu').numpy()/float(M)
+        # Compute the final distortion between the samples and the quantizer
+        distortion = torch.mean(dist_centroids_points[torch.arange(M), index_closest_centroid] ** 2).item() * 0.5
+        return centroids.to('cpu').numpy(), probabilities, distortion
 ```
 
 
