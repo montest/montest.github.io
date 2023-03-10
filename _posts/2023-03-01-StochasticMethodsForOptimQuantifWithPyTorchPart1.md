@@ -139,25 +139,26 @@ def lloyd_method_dim_1(N: int, M: int, nbr_iter: int, seed: int = 0):
     centroids = np.random.normal(0, 1, size=N)
     centroids.sort(axis=0)
 
-    with trange(nbr_iter, desc='Lloyd method (numpy)') as t:
-        for step in t:
-            # Compute the vertices that separate the centroids
-            vertices = 0.5 * (centroids[:-1] + centroids[1:])
+    for step in trange(nbr_iter, desc=f'Lloyd method - N: {N} - M: {M} - seed: {seed} (numpy)'):
+        # Compute the vertices that separate the centroids
+        vertices = 0.5 * (centroids[:-1] + centroids[1:])
 
-            # Find the index of the centroid that is closest to each sample
-            index_closest_centroid = np.sum(xs[:, None] >= vertices[None, :], axis=1)
+        # Find the index of the centroid that is closest to each sample
+        index_closest_centroid = np.sum(xs[:, None] >= vertices[None, :], axis=1)
 
-            # Compute the new quantization levels as the average of the samples assigned to each centroid
-            centroids = np.array([np.mean(xs[index_closest_centroid == i], axis=0) for i in range(N)])
+        # Compute the new quantization levels as the mean of the samples assigned to each level
+        centroids = np.array([np.mean(xs[index_closest_centroid == i], axis=0) for i in range(N)])
 
-    # Compute, for each sample, the distance to each centroid
-    dist_centroids_points = np.linalg.norm(centroids.reshape((N, 1)) - xs.reshape(M, 1, 1), axis=2)
-    # Find the index of the centroid that is closest to each sample using the previously computed distances
-    index_closest_centroid = dist_centroids_points.argmin(axis=1)
+        if any(np.isnan(centroids)):
+            break
+
+    # Find the index of the centroid that is closest to each sample
+    vertices = 0.5 * (centroids[:-1] + centroids[1:])
+    index_closest_centroid = np.sum(xs[:, None] >= vertices[None, :], axis=1)
     # Compute the probability of each centroid
     probabilities = np.bincount(index_closest_centroid) / float(M)
     # Compute the final distortion between the samples and the quantizer
-    distortion = np.mean(dist_centroids_points[np.arange(M), index_closest_centroid] ** 2) * 0.5
+    distortion = ((xs - centroids[index_closest_centroid]) ** 2).sum() / float(2 * M)
     return centroids, probabilities, distortion
 ```
 
@@ -167,9 +168,14 @@ The advantage of this optimized version is twofold. First, it drastically reduce
 PyTorch Implementation
 =======
 
-**TODO: add details**
+Using the numpy code version written above, we can easily implement the Lloyd algorithm in PyTorch. The main difference is the usage of `torch.no_grad()` in order to make sure we don't accumulate the gradients in the tensors and before applying the fixed point iterator, we send the centroids and the samples to the chose device: `cpu` or `cuda`.
+
+As above, `lloyd_method_dim_1_pytorch` applies `nbr_iter` iterations of the fixed point function in order to build an optimal quantizer of a gaussian random variable where you can select `N` the size of the optimal quantizer, `M` the number of sample you want to generate. 
 
 ```python
+import torch
+from tqdm import trange
+
 def lloyd_method_dim_1_pytorch(N: int, M: int, nbr_iter: int, device: str, seed: int = 0):
     """
     Apply `nbr_iter` iterations of the Randomized Lloyd algorithm in order to build an optimal quantizer of size `N`
@@ -196,28 +202,53 @@ def lloyd_method_dim_1_pytorch(N: int, M: int, nbr_iter: int, device: str, seed:
         centroids, index = centroids.sort()
         centroids = centroids.to(device)  # send centroids to correct device
 
-        with trange(nbr_iter, desc=f'Lloyd method (pytorch: {device})') as t:
-            for step in t:
-                # Compute the vertices that separate the centroids
-                vertices = 0.5 * (centroids[:-1] + centroids[1:])
+        for step in trange(nbr_iter, desc=f'Lloyd method - N: {N} - M: {M} - seed: {seed} (pytorch: {device})'):
+            # Compute the vertices that separate the centroids
+            vertices = 0.5 * (centroids[:-1] + centroids[1:])
 
-                # Find the index of the centroid that is closest to each sample
-                index_closest_centroid = torch.sum(xs[:, None] >= vertices[None, :], dim=1).long()
+            # Find the index of the centroid that is closest to each sample
+            index_closest_centroid = torch.sum(xs[:, None] >= vertices[None, :], dim=1).long()
 
-                # Compute the new quantization levels as the mean of the samples assigned to each level
-                centroids = torch.tensor([torch.mean(xs[index_closest_centroid == i]) for i in range(N)]).to(device)
+            # Compute the new quantization levels as the mean of the samples assigned to each level
+            centroids = torch.tensor([torch.mean(xs[index_closest_centroid == i]) for i in range(N)]).to(device)
 
-        # Compute, for each sample, the distance to each centroid
-        dist_centroids_points = torch.norm(centroids - xs.reshape(M, 1, 1), dim=1)
-        # Find the index of the centroid that is closest to each sample using the previously computed distances
-        index_closest_centroid = dist_centroids_points.argmin(dim=1)
+            if torch.isnan(centroids).any():
+                break
+
+        # Find the index of the centroid that is closest to each sample
+        vertices = 0.5 * (centroids[:-1] + centroids[1:])
+        index_closest_centroid = torch.sum(xs[:, None] >= vertices[None, :], dim=1).long()
         # Compute the probability of each centroid
         probabilities = torch.bincount(index_closest_centroid).to('cpu').numpy()/float(M)
         # Compute the final distortion between the samples and the quantizer
-        distortion = torch.mean(dist_centroids_points[torch.arange(M), index_closest_centroid] ** 2).item() * 0.5
+        distortion = torch.sum(torch.pow(xs - centroids[index_closest_centroid], 2)).item() / float(2 * M)
         return centroids.to('cpu').numpy(), probabilities, distortion
 ```
 
+
+Numerical experiments
+=======
+
+**TODO: add details and comment on results**
+
+The tests were conducted on a VM instance on Google Cloud Platform with a T4 GPU.
+
+<center>
+    <img alt="method_comparison_M_200000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_200000.svg" width=370 />
+    <img alt="ratio_comparison_M_200000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_ratio_comparison_M_200000.svg" width=370 />
+</center>
+ 
+ 
+<center>
+    <img alt="method_comparison_M_500000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_500000.svg" width=370 />
+    <img alt="ratio_comparison_M_500000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_ratio_comparison_M_500000.svg" width=370 />
+</center>
+
+
+<center>
+    <img alt="method_comparison_M_1000000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width=370 />
+    <img alt="ratio_comparison_M_1000000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_ratio_comparison_M_1000000.svg" width=370 />
+</center>
 
 
 [blog_post_stochastic_methods]: {% post_url 2022-02-13-StochasticMethodsForOptimQuantif %}
