@@ -3,7 +3,10 @@ title: 'Stochastic Numerical Methods for Optimal Voronoï Quantization'
 collection: blog posts
 excerpt: "
 <img align='left' src='/images/posts/quantization/N_50_random_lloyd_100000.gif' width='300' >
-In this post, I remind what is quadratic optimal quantizations. Then, I explain the two algorithms that were first devised in order to build an optimal quantization of a random vector $X$, namely: the fixed-point search called **Lloyd method** and the stochastic gradient descent known as **Competitive Learning Vector Quantization** (CLVQ). All explanations are accompanied by some code examples in Python and is available in the following Github repository: [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization)."
+In this post, I remind what is quadratic optimal quantizations. Then, I explain the two algorithms that were first devised in order to build an optimal quantization of a random vector $X$, namely: the fixed-point search called **Lloyd method** and the stochastic gradient descent known as **Competitive Learning Vector Quantization** (CLVQ). 
+
+
+All explanations are accompanied by some code examples in Python and is available in the following Github repository: [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization)."
 date: 2022-02-13
 permalink:  /:year/:month/:day/:title/
 bibliography: bibli.bib  

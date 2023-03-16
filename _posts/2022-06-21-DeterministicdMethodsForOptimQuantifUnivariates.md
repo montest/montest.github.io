@@ -3,7 +3,10 @@ title: 'Deterministic Numerical Methods for Optimal Voronoï Quantization: The o
 collection: blog posts
 excerpt: "
 <img align='left' src='/images/posts/quantization/univariate/distortion_normal_convergence.gif' width='300' >
-In my previous blog post, I detailed the methods used to build an optimal Voronoï quantizer of random vectors $$X$$ whatever the dimension $$d$$. In this post, I will focus on real valued random variables and present faster methods for dimension $1$. All the code presented in this blog post is available in the following Github repository: [montest/deterministic-methods-optimal-quantization](https://github.com/montest/deterministic-methods-optimal-quantization)."
+In my previous blog post, I detailed the methods used to build an optimal Voronoï quantizer of random vectors $$X$$ whatever the dimension $$d$$. In this post, I will focus on real valued random variables and present faster methods for dimension $1$. 
+
+
+All the code presented in this blog post is available in the following Github repository: [montest/deterministic-methods-optimal-quantization](https://github.com/montest/deterministic-methods-optimal-quantization)."
 date: 2022-06-21
 permalink:  /:year/:month/:day/:title/
 bibliography: bibli.bib  
