@@ -2,16 +2,12 @@
 title: 'Optimal Quantization with PyTorch - Part 1: Implementation of Stochastic Lloyd Method'
 collection: blog posts
 excerpt: "
-
-
-
-
-TODO
-
+<img align='left' src='/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg' width='250' >
+In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm. 
 
 
 All explanations are accompanied by some code examples in Python and is available in the following Github repository: [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization)."
-date: 2023-03-01
+date: 2023-03-16
 permalink:  /:year/:month/:day/:title/
 bibliography: bibli.bib  
 tags:
@@ -35,7 +31,7 @@ Introduction
 
 In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm. I compare the implementation I made in numpy in a [previous blog post][blog_post_stochastic_methods] with the PyTorch version and study how it scales.
 
-All the code presented in this blog post is available in the following Github repository: [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization)
+All the codes presented in this blog post are available in the following Github repository: [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization)
 
 Short Reminder
 ======
@@ -94,13 +90,13 @@ $$
 One of the first method deployed in order to build optimal quantizers was the Lloyd method, which is a fixed-point search algorithm. Let $x^{[n]}$ be the quantizer of size $N$ obtained after $n$ iterations, the Randomized Lloyd method with initial condition $x^0$ is defined as follows
 
 $$
-x^{[n+1]} = \Lambda^M \big( x^{[n]} \big).
+x^{[n+1]} = \Lambda^M \big( x^{[n]} \big),
 $$
 
 where
 
 $$
-\Lambda_i^M ( x ) = \frac{\displaystyle \sum_{m=1}^M \xi_m \mathbb{1}_{ \big\{ \textrm{Proj}_{\Gamma_N} (\xi_m) = x_i^N \big\} } }{\displaystyle \sum_{m=1}^M \mathbb{1}_{ \big\{ \textrm{Proj}_{\Gamma_N} (\xi_m) = x_i^N \big\} } }. % \qquad \mbox{with} \qquad \Gamma_N = \{ x_1^N, \dots, x_N^N \}
+\Lambda_i^M ( x ) = \frac{\displaystyle \sum_{m=1}^M \xi_m \mathbb{1}_{ \big\{ \textrm{Proj}_{\Gamma_N} (\xi_m) = x_i^N \big\} } }{\displaystyle \sum_{m=1}^M \mathbb{1}_{ \big\{ \textrm{Proj}_{\Gamma_N} (\xi_m) = x_i^N \big\} } }, % \qquad \mbox{with} \qquad \Gamma_N = \{ x_1^N, \dots, x_N^N \}
 $$
 
 with $\xi_1, \dots, \xi_M$ be independent copies of $X$.
@@ -168,7 +164,7 @@ The advantage of this optimized version is twofold. First, it drastically reduce
 PyTorch Implementation
 =======
 
-Using the numpy code version written above, we can easily implement the Lloyd algorithm in PyTorch. The main difference is the usage of `torch.no_grad()` in order to make sure we don't accumulate the gradients in the tensors and before applying the fixed point iterator, we send the centroids and the samples to the chose device: `cpu` or `cuda`.
+Using the numpy code version written above, we can easily implement the Lloyd algorithm in PyTorch. The main difference is the usage of `torch.no_grad()` in order to make sure we don't accumulate the gradients in the tensors and before applying the fixed point iterator, we send the centroids and the samples to the chosen device: `cpu` or `cuda`.
 
 As above, `lloyd_method_dim_1_pytorch` applies `nbr_iter` iterations of the fixed point function in order to build an optimal quantizer of a gaussian random variable where you can select `N` the size of the optimal quantizer, `M` the number of sample you want to generate. 
 
@@ -229,23 +225,35 @@ def lloyd_method_dim_1_pytorch(N: int, M: int, nbr_iter: int, device: str, seed:
 Numerical experiments
 =======
 
-**TODO: add details and comment on results**
+Now, I compare the average elapsed time of a fixed-point search iteration of the previous two algorithms. I analyze the computation time of the algorithms for different sample size (`M`), grid size (`N`) and devices for the PyTorch implementation.
+All the tests were conducted on Google Cloud Platform on an instance `n1-standard-4` with 4 cores, 16 Go of RAM and a `NVIDIA T4` GPU. 
 
-The tests were conducted on a VM instance on Google Cloud Platform with a T4 GPU.
+In order to reproduce those results, you can run the script `benchmark/run.py` in the GitHub repository [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization).
+
+
+In the left graph, I display, for each method, the average time of an iteration for several values of `N`.
+In the right graph, I plot, for each `N`, the ratio between the average time for each method and the average time spent by PyTorch implementation using `cuda`. 
+
+
+We can notice that when it comes to cpu-only computations, numpy is a better choice than PyTorch. However, when using the GPU, we notice that the PyTorch + cuda version is up to 20 times faster than the numpy implementation. And this is even more noticeable when we increase the sample size.
+
 
 <center>
+    <figcaption><font size=4>Methods comparison for M=200000</font></figcaption>
     <img alt="method_comparison_M_200000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_200000.svg" width=370 />
     <img alt="ratio_comparison_M_200000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_ratio_comparison_M_200000.svg" width=370 />
 </center>
- 
+<br/><br/>
  
 <center>
+    <figcaption><font size=4>Methods comparison for M=500000</font></figcaption>
     <img alt="method_comparison_M_500000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_500000.svg" width=370 />
     <img alt="ratio_comparison_M_500000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_ratio_comparison_M_500000.svg" width=370 />
 </center>
-
+<br/><br/>
 
 <center>
+    <figcaption><font size=4>Methods comparison for M=1000000</font></figcaption>
     <img alt="method_comparison_M_1000000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width=370 />
     <img alt="ratio_comparison_M_1000000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_ratio_comparison_M_1000000.svg" width=370 />
 </center>
@@ -253,7 +261,3 @@ The tests were conducted on a VM instance on Google Cloud Platform with a T4 GPU
 
 [blog_post_stochastic_methods]: {% post_url 2022-02-13-StochasticMethodsForOptimQuantif %}
 [blog_post_deterministic_methods]: {% post_url 2022-06-21-DeterministicdMethodsForOptimQuantifUnivariates %}
-
-# References
-
-{% bibliography --cited %}
