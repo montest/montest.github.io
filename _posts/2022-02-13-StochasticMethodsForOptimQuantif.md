@@ -13,6 +13,8 @@ bibliography: bibli.bib
 tags:
   - Numerical Probability
   - Optimization
+  - Stochastic Gradient Descent
+  - Fixed-Point Search
   - Optimal Quantization
 ---
 

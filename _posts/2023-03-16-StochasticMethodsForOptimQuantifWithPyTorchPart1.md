@@ -14,6 +14,7 @@ tags:
   - PyTorch
   - Numerical Probability
   - Optimization
+  - Fixed-Point Search
   - Optimal Quantization
 ---
 
