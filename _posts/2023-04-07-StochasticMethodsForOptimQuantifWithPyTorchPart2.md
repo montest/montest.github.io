@@ -7,7 +7,7 @@ In this post, I present several PyTorch implementations of the Competitive Learn
 
 
 All explanations are accompanied by some code examples in Python and is available in the following Github repository: [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization)."
-date: 2023-03-16
+date: 2023-04-07
 permalink:  /:year/:month/:day/:title/
 bibliography: bibli.bib  
 tags:
@@ -29,7 +29,7 @@ Table of contents
 
 Introduction
 ======
-In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. As seen in [my previous blog post][blog_post_pytorch_lloyd_stochastic], the use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm. Moreover, in this article, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in `torch.optim`. I compare the implementation I made in numpy in a [previous blog post][blog_post_stochastic_methods] with the PyTorch version and study how it scales.
+In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. As seen in [my previous blog post][blog_post_pytorch_lloyd_stochastic], the use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm. Moreover, in this article, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in `torch.optim`. I compare the implementation I made in numpy in a [previous blog post][blog_post_stochastic_methods] with the PyTorch version and study how it scales. Moreover, I explore the use of `autograd` in PyTorch.
 
 All the codes presented in this blog post are available in the following Github repository: [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization)
 
@@ -104,9 +104,6 @@ def clvq_method_dim_1(N: int, M: int, num_epochs: int, seed: int = 0):
 
     Returns: centroids, probabilities associated to each centroid and distortion
     """
-    ## To uncomment if you want to compute the probability and the distortion inline
-    # probabilities = np.zeros(N)
-    # distortion = 0.
     np.random.seed(seed)  # Set seed in order to be able to reproduce the results
 
     # Draw M samples of gaussian variable
@@ -124,26 +121,11 @@ def clvq_method_dim_1(N: int, M: int, num_epochs: int, seed: int = 0):
 
                 # Find the index of the centroid that is closest to each sample
                 index_closest_centroid = np.sum(xs[step, None] >= vertices[None, :])
-                ## To uncomment if you want to compute the probability and the distortion inline
-                # l2_dist = np.linalg.norm(centroids[index_closest_centroid] - xs[step])
 
                 gamma_n = lr(N, epoch*M + step)
-                # gamma_n = 0.01
 
                 # Update the closest centroid using the local gradient
                 centroids[index_closest_centroid] = centroids[index_closest_centroid] - gamma_n * (centroids[index_closest_centroid] - xs[step])
-
-            ## To uncomment if you want to compute the probability and the distortion inline
-            #     # Update the distortion using gamma_n
-            #     distortion = (1 - gamma_n) * distortion + 0.5 * gamma_n * l2_dist ** 2
-            #
-            #     # Update probabilities
-            #     probabilities = (1 - gamma_n) * probabilities
-            #     probabilities[index_closest_centroid] += gamma_n
-            #
-            #     if any(np.isnan(centroids)):
-            #         break
-            # epochs.set_postfix(distortion=distortion)
 
     probabilities, distortion = get_probabilities_and_distortion(centroids, xs)
     return centroids, probabilities, distortion
@@ -185,62 +167,117 @@ The advantage of this optimized version is twofold. First, it drastically reduce
 PyTorch Implementation
 =======
 
-<!-- Using the numpy code version written above, we can easily implement the Lloyd algorithm in PyTorch. The main difference is the usage of `torch.no_grad()` in order to make sure we don't accumulate the gradients in the tensors and before applying the fixed point iterator, we send the centroids and the samples to the chosen device: `cpu` or `cuda`.
-
-As above, `lloyd_method_dim_1_pytorch` applies `nbr_iter` iterations of the fixed point function in order to build an optimal quantizer of a gaussian random variable where you can select `N` the size of the optimal quantizer, `M` the number of sample you want to generate. 
+Again, as in my previous blog post, using the numpy code version written above, we can easily implement the CLVQ algorithm in PyTorch. In `clvq_method_dim_1_pytorch`, I used the same variables and notations as in the numpy implementation. There is one extra variable `device` that should have one of the two values `cpu` or `cuda` that defines where the computations will be done. 
 
 ```python
 import torch
 from tqdm import trange
+from utils import get_probabilities_and_distortion
 
-def lloyd_method_dim_1_pytorch(N: int, M: int, nbr_iter: int, device: str, seed: int = 0):
+def lr(N: int, n: int):
+    a = 4.0 * N
+    b = torch.pi ** 2 / float(N * N)
+    return a / float(a + b * (n+1.))
+
+
+def clvq_method_dim_1_pytorch(N: int, M: int, num_epochs: int, device: str, seed: int = 0):
     """
-    Apply `nbr_iter` iterations of the Randomized Lloyd algorithm in order to build an optimal quantizer of size `N`
-    for a Gaussian random variable. This implementation is done using torch.
+    Apply `nbr_iter` iterations of the Competitive Learning Vector Quantization algorithm in order to build an optimal
+     quantizer of size `N` for a Gaussian random variable. This implementation is done using torch.
 
     N: number of centroids
     M: number of samples to generate
-    nbr_iter: number of iterations of fixed point search
+    num_epochs: number of epochs of fixed point search
     device: device on which perform the computations: "cuda" or "cpu"
-    seed: torch seed for reproducibility
+    seed: numpy seed for reproducibility
 
     Returns: centroids, probabilities associated to each centroid and distortion
     """
     torch.manual_seed(seed=seed)  # Set seed in order to be able to reproduce the results
-
     with torch.no_grad():
         # Draw M samples of gaussian variable
         xs = torch.randn(M)
-        # xs = torch.tensor(torch.randn(M), dtype=torch.float32)
         xs = xs.to(device)  # send samples to correct device
 
-        # Initialize the Voronoi Quantizer randomly
+        # Initialize the Voronoi Quantizer randomly and sort it
         centroids = torch.randn(N)
         centroids, index = centroids.sort()
         centroids = centroids.to(device)  # send centroids to correct device
 
-        for step in trange(nbr_iter, desc=f'Lloyd method - N: {N} - M: {M} - seed: {seed} (pytorch: {device})'):
-            # Compute the vertices that separate the centroids
-            vertices = 0.5 * (centroids[:-1] + centroids[1:])
+        with trange(num_epochs, desc=f'CLVQ method - N: {N} - M: {M} - seed: {seed} (pytorch: {device})') as epochs:
+            for epoch in epochs:
+                for step in range(M):
+                    # Compute the vertices that separate the centroids
+                    vertices = 0.5 * (centroids[:-1] + centroids[1:])
 
-            # Find the index of the centroid that is closest to each sample
-            index_closest_centroid = torch.sum(xs[:, None] >= vertices[None, :], dim=1).long()
+                    # Find the index of the centroid that is closest to each sample
+                    index_closest_centroid = torch.sum(xs[step, None] >= vertices[None, :]).long()
 
-            # Compute the new quantization levels as the mean of the samples assigned to each level
-            centroids = torch.tensor([torch.mean(xs[index_closest_centroid == i]) for i in range(N)]).to(device)
+                    gamma_n = lr(N, epoch*M + step)
 
-            if torch.isnan(centroids).any():
-                break
+                    # Update the closest centroid using the local gradient
+                    centroids[index_closest_centroid] = centroids[index_closest_centroid] - gamma_n * (centroids[index_closest_centroid] - xs[step])
 
-        # Find the index of the centroid that is closest to each sample
-        vertices = 0.5 * (centroids[:-1] + centroids[1:])
-        index_closest_centroid = torch.sum(xs[:, None] >= vertices[None, :], dim=1).long()
-        # Compute the probability of each centroid
-        probabilities = torch.bincount(index_closest_centroid).to('cpu').numpy()/float(M)
-        # Compute the final distortion between the samples and the quantizer
-        distortion = torch.sum(torch.pow(xs - centroids[index_closest_centroid], 2)).item() / float(2 * M)
-        return centroids.to('cpu').numpy(), probabilities, distortion
-``` -->
+    probabilities, distortion = get_probabilities_and_distortion(centroids, xs)
+    return centroids.to('cpu').numpy(), probabilities, distortion
+```
+
+### Remark
+Now that the converted the numpy implementation into PyTorch, we can try to take advantage of another big feature of PyTorch, which is `autograd`. It is described as follow in PyTorch documentation:
+
+> *PyTorch’s Autograd feature is part of what make PyTorch flexible and fast for building machine learning projects. It allows for the rapid and easy computation of multiple partial derivatives (also referred to as gradients) over a complex computation. This operation is central to backpropagation-based neural network learning.*
+> 
+> *The power of autograd comes from the fact that it traces your computation dynamically at runtime, meaning that if your model has decision branches, or loops whose lengths are not known until runtime, the computation will still be traced correctly, and you’ll get correct gradients to drive learning. This, combined with the fact that your models are built in Python, offers far more flexibility than frameworks that rely on static analysis of a more rigidly-structured model for computing gradients.*
+
+This will allows us to not compute the gradient by hand and most importantly to take advantage of all the optimizers already implemented in `torch.optim` such as SGD with momentum or ADAM. 
+
+
+First, we define `Quantizer` that inherit from `torch.nn.Module` that, at initialization, creates a random quantizer of size `N` and set `self.centroids` as parameters for which we need to compute the gradient using `.requires_grad_(True)`.
+
+```python
+from torch import nn
+
+class Quantizer(nn.Module):
+    def __init__(self, N, device):
+        super(Quantizer, self).__init__()
+        centroids = torch.randn(N)
+        centroids, index = centroids.sort()
+        self.centroids = nn.Parameter(centroids.clone().detach().requires_grad_(True))
+        self.centroids = self.centroids.to(device)  # send centroids to correct device
+```
+
+Then, we can create an instance of this quantizer and set it in training mode (which allows for the gradients to accumulate.)
+```python
+    quantizer = Quantizer(N, device)
+    quantizer.train()
+    quantizer.zero_grad()
+```
+
+Then the optimizer is defined using one of the following 
+```python
+optim = torch.optim.SGD(quantizer.parameters(), lr=1e-2, momentum=0)
+# optim = torch.optim.SGD(quantizer.parameters(), lr=1e-2, momentum=0.9)
+# optimizer = torch.Adam(quantizer.parameters(), lr=1e-2)
+```
+
+Finally, one step of gradient descent using one sample at index `step` of `xs`
+```python
+# Compute the vertices that separate the centroids
+with torch.no_grad():
+    vertices = 0.5 * (quantizer.centroids[:-1] + quantizer.centroids[1:])
+    # Find the index of the centroid that is closest to each sample
+    index_closest_centroid = torch.sum(xs[step, None] >= vertices[None, :]).long()
+optim.zero_grad()
+loss = 0.5 * (quantizer.centroids[index_closest_centroid] - xs[step])**2
+# loss = 0.5 * torch.linalg.vector_norm(quantizer.centroids[index_closest_centroid] - xs[step])**2
+#
+#     print(f"2:    {quantizer.centroids.grad.data}")
+#     print(f"3:    {local_centroids[index_closest_centroid] - xs[step]}")
+#
+loss.backward()
+optim.step()  # gradient descent
+```
+
 
 
 Numerical experiments
