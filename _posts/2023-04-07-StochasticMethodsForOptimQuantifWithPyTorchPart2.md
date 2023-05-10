@@ -385,4 +385,4 @@ In the right graph, I plot, for each `N`, the ratio between the average time for
 
 [blog_post_pytorch_lloyd_stochastic]: {% post_url 2023-03-16-StochasticMethodsForOptimQuantifWithPyTorchPart1 %}
 [blog_post_stochastic_methods]: {% post_url 2022-02-13-StochasticMethodsForOptimQuantif %}
-[blog_post_deterministic_methods]: {% post_url 2022-06-21-DeterministicdMethodsForOptimQuantifUnivariates %}
+[blog_post_deterministic_methods]: {% post_url 2022-06-21-DeterministicMethodsForOptimQuantifUnivariates %}

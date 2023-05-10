@@ -261,4 +261,4 @@ We can notice that when it comes to cpu-only computations, numpy is a better cho
 
 
 [blog_post_stochastic_methods]: {% post_url 2022-02-13-StochasticMethodsForOptimQuantif %}
-[blog_post_deterministic_methods]: {% post_url 2022-06-21-DeterministicdMethodsForOptimQuantifUnivariates %}
+[blog_post_deterministic_methods]: {% post_url 2022-06-21-DeterministicMethodsForOptimQuantifUnivariates %}
