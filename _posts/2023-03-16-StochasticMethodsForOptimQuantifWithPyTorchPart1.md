@@ -229,7 +229,7 @@ Numerical experiments
 Now, I compare the average elapsed time of a fixed-point search iteration of the previous two algorithms. I analyze the computation time of the algorithms for different sample size (`M`), grid size (`N`) and devices for the PyTorch implementation.
 All the tests were conducted on Google Cloud Platform on an instance `n1-standard-4` with 4 cores, 16 Go of RAM and a `NVIDIA T4` GPU. 
 
-In order to reproduce those results, you can run the script `benchmark/run.py` in the GitHub repository [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization).
+In order to reproduce those results, you can run the script `benchmark/run_lloyd.py` in the GitHub repository [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization).
 
 
 In the left graph, I display, for each method, the average time of an iteration for several values of `N`.
