@@ -576,7 +576,7 @@
 
 <p>Again, during the optimization the weights $p_i^N$ and the local distortions \(q_i^N\) associated to the centroids can be computed. I detail below a Python method that applies <code class="language-plaintext highlighter-rouge">M</code> gradient-descent steps of the CLVQ algorithm starting from the <code class="language-plaintext highlighter-rouge">init_n</code> iterate $x^{[\textrm{init}_n]}$</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">apply_M_gradient_descend_steps</span><span class="p">(</span><span class="n">centroids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Point</span><span class="p">],</span> <span class="n">xs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Point</span><span class="p">],</span> <span class="n">count</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">distortion</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">init_n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">apply_M_gradient_descend_steps</span><span class="p">(</span><span class="n">centroids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Point</span><span class="p">],</span> <span class="n">xs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Point</span><span class="p">],</span> <span class="n">probas</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">distortion</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">init_n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">centroids</span><span class="p">)</span>  <span class="c1"># Size of the quantizer
 </span>
     <span class="c1"># M steps of the Stochastic Gradient Descent
@@ -593,9 +593,10 @@
 </span>        <span class="n">distortion</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">gamma_n</span><span class="p">)</span> <span class="o">*</span> <span class="n">distortion</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">gamma_n</span> <span class="o">*</span> <span class="n">l2_dist</span> <span class="o">**</span> <span class="mi">2</span>
 
         <span class="c1"># Update counter used for computing the probabilities
-</span>        <span class="n">count</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+</span>        <span class="n">probas</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">gamma_n</span><span class="p">)</span> <span class="o">*</span> <span class="n">probas</span>
+        <span class="n">probas</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">+=</span> <span class="n">gamma_n</span>
 
-    <span class="k">return</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">distortion</span>
+    <span class="k">return</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">probas</span><span class="p">,</span> <span class="n">distortion</span>
 </code></pre></div></div>
 
 <p>Hence, starting from a random quantizer of size $N$, the following algorithm will apply <code class="language-plaintext highlighter-rouge">n</code> gradient-descent steps of the CLVQ algorithm while ploting the approximated distortion every <code class="language-plaintext highlighter-rouge">M</code> steps.</p>
@@ -607,17 +608,16 @@
 
     <span class="c1"># Initialization step
 </span>    <span class="n">centroids</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">N</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
-    <span class="n">count</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">probas</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
     <span class="n">distortion</span> <span class="o">=</span> <span class="mf">0.</span>
 
     <span class="k">with</span> <span class="n">trange</span><span class="p">(</span><span class="n">nbr_iter</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">'CLVQ method'</span><span class="p">)</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">t</span><span class="p">:</span>
             <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">M</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>  <span class="c1"># Draw M samples of gaussian vectors
 </span>
-            <span class="n">centroids</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">distortion</span> <span class="o">=</span> <span class="n">apply_M_gradient_descend_steps</span><span class="p">(</span><span class="n">centroids</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">distortion</span><span class="p">,</span> <span class="n">init_n</span><span class="o">=</span><span class="n">step</span><span class="o">*</span><span class="n">M</span><span class="p">)</span>
+            <span class="n">centroids</span><span class="p">,</span> <span class="n">probas</span><span class="p">,</span> <span class="n">distortion</span> <span class="o">=</span> <span class="n">apply_M_gradient_descend_steps</span><span class="p">(</span><span class="n">centroids</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">probas</span><span class="p">,</span> <span class="n">distortion</span><span class="p">,</span> <span class="n">init_n</span><span class="o">=</span><span class="n">step</span><span class="o">*</span><span class="n">M</span><span class="p">)</span>
             <span class="n">t</span><span class="p">.</span><span class="n">set_postfix</span><span class="p">(</span><span class="n">distortion</span><span class="o">=</span><span class="n">distortion</span><span class="p">,</span> <span class="n">nbr_gradient_iter</span><span class="o">=</span><span class="p">(</span><span class="n">step</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">M</span><span class="p">)</span>
 
-    <span class="n">probas</span> <span class="o">=</span> <span class="n">count</span> <span class="o">/</span> <span class="n">np</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">probas</span><span class="p">,</span> <span class="n">distortion</span>
 </code></pre></div></div>
 
@@ -741,6 +741,10 @@
     
       
       
+      <a href="https://montest.github.io/tags/#fixed-point-search" class="page__taxonomy-item" rel="tag">Fixed-Point Search</a><span class="sep">, </span>
+    
+      
+      
       <a href="https://montest.github.io/tags/#numerical-probability" class="page__taxonomy-item" rel="tag">Numerical Probability</a><span class="sep">, </span>
     
       
@@ -749,7 +753,11 @@
     
       
       
-      <a href="https://montest.github.io/tags/#optimization" class="page__taxonomy-item" rel="tag">Optimization</a>
+      <a href="https://montest.github.io/tags/#optimization" class="page__taxonomy-item" rel="tag">Optimization</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://montest.github.io/tags/#stochastic-gradient-descent" class="page__taxonomy-item" rel="tag">Stochastic Gradient Descent</a>
     
     </span>
   </p>
@@ -783,7 +791,7 @@
       <a href="#" class="pagination--pager disabled">Previous</a>
     
     
-      <a href="https://montest.github.io/2022/06/21/DeterministicdMethodsForOptimQuantifUnivariates/" class="pagination--pager" title="Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
+      <a href="https://montest.github.io/2022/06/21/DeterministicMethodsForOptimQuantifUnivariates/" class="pagination--pager" title="Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
 ">Next</a>
     
   </nav>
@@ -800,6 +808,50 @@
         <h4 class="page__related-title">You May Also Enjoy</h4>
       
       <div class="grid__wrapper">
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/" rel="permalink">Optimal Quantization with PyTorch - Part 2: Implementation of Stochastic Gradient Descent
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  16 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-06-12T00:00:00+02:00">June 12, 2023</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_200000.svg" width="350" /> In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. In my previous blog post, the use of PyTorch for Lloyd allowed me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. However, in this article, we do not observe the same behavior, this pytorch implementation is slower than the numpy one. Moreover, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in <code class="language-plaintext highlighter-rouge">torch.optim</code>. Again, this implementation does not speed up the optimization (on the contrary) but it opens the door to other use of the autograd algorithm with other methods (e.g. in the deterministic case).</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
         
           
 
@@ -833,7 +885,7 @@
         
 
     
-    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width="250" /> In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.</p>
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width="250" /> In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm, aka K-means, in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.</p>
 
 <p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
 </p>
@@ -857,7 +909,7 @@
 
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="https://montest.github.io/2022/06/21/DeterministicdMethodsForOptimQuantifUnivariates/" rel="permalink">Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
+        <a href="https://montest.github.io/2022/06/21/DeterministicMethodsForOptimQuantifUnivariates/" rel="permalink">Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
 </a>
       
     </h2>

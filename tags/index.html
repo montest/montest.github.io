@@ -308,6 +308,22 @@
 <!-- If not equal to previous then it must be unique as sorted -->
 
 
+<!-- Push to group_names -->
+
+
+
+
+
+
+<!-- If not equal to previous then it must be unique as sorted -->
+
+
+
+
+
+<!-- If not equal to previous then it must be unique as sorted -->
+
+
 
 
 
@@ -342,8 +358,64 @@
 <!-- If not equal to previous then it must be unique as sorted -->
 
 
+
+
+
+<!-- If not equal to previous then it must be unique as sorted -->
+
+
 <!-- Push to group_names -->
 
+
+
+
+
+
+<!-- If not equal to previous then it must be unique as sorted -->
+
+
+
+
+
+<!-- If not equal to previous then it must be unique as sorted -->
+
+
+
+
+
+<!-- If not equal to previous then it must be unique as sorted -->
+
+
+
+
+
+<!-- If not equal to previous then it must be unique as sorted -->
+
+
+<!-- Push to group_names -->
+
+
+
+
+
+
+<!-- If not equal to previous then it must be unique as sorted -->
+
+
+
+
+
+<!-- If not equal to previous then it must be unique as sorted -->
+
+
+<!-- Push to group_names -->
+
+
+
+
+
+
+<!-- If not equal to previous then it must be unique as sorted -->
 
 
 
@@ -385,9 +457,33 @@
 
 
 
+<!-- Collect if contains -->
+
+
+
+<!-- Push to group_items -->
+
+
+
+<!-- Collect if contains -->
+
+
+
+<!-- Push to group_items -->
+
+
+
+<!-- Collect if contains -->
+
+
+
+<!-- Push to group_items -->
+
+
+
 
   
-  <h2 id="numerical-probability" class="archive__subtitle">Numerical Probability</h2>
+  <h2 id="fixed-point-search" class="archive__subtitle">Fixed-Point Search</h2>
   
     
 
@@ -421,7 +517,7 @@
         
 
     
-    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width="250" /> In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.</p>
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width="250" /> In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm, aka K-means, in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.</p>
 
 <p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
 </p>
@@ -445,7 +541,235 @@
 
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="https://montest.github.io/2022/06/21/DeterministicdMethodsForOptimQuantifUnivariates/" rel="permalink">Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
+        <a href="https://montest.github.io/2022/06/21/DeterministicMethodsForOptimQuantifUnivariates/" rel="permalink">Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  23 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2022-06-21T00:00:00+02:00">June 21, 2022</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/univariate/distortion_normal_convergence.gif" width="300" /> In my previous blog post, I detailed the methods used to build an optimal Voronoï quantizer of random vectors \(X\) whatever the dimension \(d\). In this post, I will focus on real valued random variables and present faster methods for dimension $1$.</p>
+
+<p>All the code presented in this blog post is available in the following Github repository: <a href="https://github.com/montest/deterministic-methods-optimal-quantization">montest/deterministic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+  
+    
+
+
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2022/02/13/StochasticMethodsForOptimQuantif/" rel="permalink">Stochastic Numerical Methods for Optimal Voronoï Quantization
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  19 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2022-02-13T00:00:00+01:00">February 13, 2022</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/N_50_random_lloyd_100000.gif" width="300" /> In this post, I remind what is quadratic optimal quantizations. Then, I explain the two algorithms that were first devised in order to build an optimal quantization of a random vector $X$, namely: the fixed-point search called <strong>Lloyd method</strong> and the stochastic gradient descent known as <strong>Competitive Learning Vector Quantization</strong> (CLVQ).</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+  
+
+  
+  <h2 id="gradient-descent" class="archive__subtitle">Gradient Descent</h2>
+  
+    
+
+
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2022/06/21/DeterministicMethodsForOptimQuantifUnivariates/" rel="permalink">Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  23 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2022-06-21T00:00:00+02:00">June 21, 2022</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/univariate/distortion_normal_convergence.gif" width="300" /> In my previous blog post, I detailed the methods used to build an optimal Voronoï quantizer of random vectors \(X\) whatever the dimension \(d\). In this post, I will focus on real valued random variables and present faster methods for dimension $1$.</p>
+
+<p>All the code presented in this blog post is available in the following Github repository: <a href="https://github.com/montest/deterministic-methods-optimal-quantization">montest/deterministic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+  
+
+  
+  <h2 id="numerical-probability" class="archive__subtitle">Numerical Probability</h2>
+  
+    
+
+
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/" rel="permalink">Optimal Quantization with PyTorch - Part 2: Implementation of Stochastic Gradient Descent
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  16 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-06-12T00:00:00+02:00">June 12, 2023</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_200000.svg" width="350" /> In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. In my previous blog post, the use of PyTorch for Lloyd allowed me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. However, in this article, we do not observe the same behavior, this pytorch implementation is slower than the numpy one. Moreover, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in <code class="language-plaintext highlighter-rouge">torch.optim</code>. Again, this implementation does not speed up the optimization (on the contrary) but it opens the door to other use of the autograd algorithm with other methods (e.g. in the deterministic case).</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+  
+    
+
+
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/" rel="permalink">Optimal Quantization with PyTorch - Part 1: Implementation of Stochastic Lloyd Method
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  9 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-03-16T00:00:00+01:00">March 16, 2023</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width="250" /> In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm, aka K-means, in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+  
+    
+
+
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2022/06/21/DeterministicMethodsForOptimQuantifUnivariates/" rel="permalink">Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
 </a>
       
     </h2>
@@ -537,7 +861,7 @@
 
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/" rel="permalink">Optimal Quantization with PyTorch - Part 1: Implementation of Stochastic Lloyd Method
+        <a href="https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/" rel="permalink">Optimal Quantization with PyTorch - Part 2: Implementation of Stochastic Gradient Descent
 </a>
       
     </h2>
@@ -547,17 +871,17 @@
 
 
   
-	  9 minute read
+	  16 minute read
 	
 </p>
     
 
         
-         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-03-16T00:00:00+01:00">March 16, 2023</time></p>
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-06-12T00:00:00+02:00">June 12, 2023</time></p>
         
 
     
-    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width="250" /> In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.</p>
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_200000.svg" width="350" /> In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. In my previous blog post, the use of PyTorch for Lloyd allowed me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. However, in this article, we do not observe the same behavior, this pytorch implementation is slower than the numpy one. Moreover, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in <code class="language-plaintext highlighter-rouge">torch.optim</code>. Again, this implementation does not speed up the optimization (on the contrary) but it opens the door to other use of the autograd algorithm with other methods (e.g. in the deterministic case).</p>
 
 <p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
 </p>
@@ -581,7 +905,51 @@
 
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="https://montest.github.io/2022/06/21/DeterministicdMethodsForOptimQuantifUnivariates/" rel="permalink">Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
+        <a href="https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/" rel="permalink">Optimal Quantization with PyTorch - Part 1: Implementation of Stochastic Lloyd Method
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  9 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-03-16T00:00:00+01:00">March 16, 2023</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width="250" /> In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm, aka K-means, in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+  
+    
+
+
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2022/06/21/DeterministicMethodsForOptimQuantifUnivariates/" rel="permalink">Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
 </a>
       
     </h2>
@@ -673,7 +1041,7 @@
 
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/" rel="permalink">Optimal Quantization with PyTorch - Part 1: Implementation of Stochastic Lloyd Method
+        <a href="https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/" rel="permalink">Optimal Quantization with PyTorch - Part 2: Implementation of Stochastic Gradient Descent
 </a>
       
     </h2>
@@ -683,17 +1051,17 @@
 
 
   
-	  9 minute read
+	  16 minute read
 	
 </p>
     
 
         
-         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-03-16T00:00:00+01:00">March 16, 2023</time></p>
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-06-12T00:00:00+02:00">June 12, 2023</time></p>
         
 
     
-    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width="250" /> In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.</p>
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_200000.svg" width="350" /> In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. In my previous blog post, the use of PyTorch for Lloyd allowed me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. However, in this article, we do not observe the same behavior, this pytorch implementation is slower than the numpy one. Moreover, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in <code class="language-plaintext highlighter-rouge">torch.optim</code>. Again, this implementation does not speed up the optimization (on the contrary) but it opens the door to other use of the autograd algorithm with other methods (e.g. in the deterministic case).</p>
 
 <p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
 </p>
@@ -717,7 +1085,51 @@
 
     <h2 class="archive__item-title" itemprop="headline">
       
-        <a href="https://montest.github.io/2022/06/21/DeterministicdMethodsForOptimQuantifUnivariates/" rel="permalink">Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
+        <a href="https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/" rel="permalink">Optimal Quantization with PyTorch - Part 1: Implementation of Stochastic Lloyd Method
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  9 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-03-16T00:00:00+01:00">March 16, 2023</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width="250" /> In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm, aka K-means, in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+  
+    
+
+
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2022/06/21/DeterministicMethodsForOptimQuantifUnivariates/" rel="permalink">Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
 </a>
       
     </h2>
@@ -809,6 +1221,50 @@
 
     <h2 class="archive__item-title" itemprop="headline">
       
+        <a href="https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/" rel="permalink">Optimal Quantization with PyTorch - Part 2: Implementation of Stochastic Gradient Descent
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  16 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-06-12T00:00:00+02:00">June 12, 2023</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_200000.svg" width="350" /> In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. In my previous blog post, the use of PyTorch for Lloyd allowed me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. However, in this article, we do not observe the same behavior, this pytorch implementation is slower than the numpy one. Moreover, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in <code class="language-plaintext highlighter-rouge">torch.optim</code>. Again, this implementation does not speed up the optimization (on the contrary) but it opens the door to other use of the autograd algorithm with other methods (e.g. in the deterministic case).</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+  
+    
+
+
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
         <a href="https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/" rel="permalink">Optimal Quantization with PyTorch - Part 1: Implementation of Stochastic Lloyd Method
 </a>
       
@@ -829,7 +1285,99 @@
         
 
     
-    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width="250" /> In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.</p>
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width="250" /> In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm, aka K-means, in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+  
+
+  
+  <h2 id="stochastic-gradient-descent" class="archive__subtitle">Stochastic Gradient Descent</h2>
+  
+    
+
+
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/" rel="permalink">Optimal Quantization with PyTorch - Part 2: Implementation of Stochastic Gradient Descent
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  16 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-06-12T00:00:00+02:00">June 12, 2023</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_200000.svg" width="350" /> In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. In my previous blog post, the use of PyTorch for Lloyd allowed me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. However, in this article, we do not observe the same behavior, this pytorch implementation is slower than the numpy one. Moreover, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in <code class="language-plaintext highlighter-rouge">torch.optim</code>. Again, this implementation does not speed up the optimization (on the contrary) but it opens the door to other use of the autograd algorithm with other methods (e.g. in the deterministic case).</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+  
+    
+
+
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2022/02/13/StochasticMethodsForOptimQuantif/" rel="permalink">Stochastic Numerical Methods for Optimal Voronoï Quantization
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  19 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2022-02-13T00:00:00+01:00">February 13, 2022</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/N_50_random_lloyd_100000.gif" width="300" /> In this post, I remind what is quadratic optimal quantizations. Then, I explain the two algorithms that were first devised in order to build an optimal quantization of a random vector $X$, namely: the fixed-point search called <strong>Lloyd method</strong> and the stochastic gradient descent known as <strong>Competitive Learning Vector Quantization</strong> (CLVQ).</p>
 
 <p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
 </p>

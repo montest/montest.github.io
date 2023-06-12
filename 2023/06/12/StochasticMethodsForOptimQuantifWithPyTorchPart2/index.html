@@ -1,0 +1,935 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+
+
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>Optimal Quantization with PyTorch - Part 2: Implementation of Stochastic Gradient Descent - Thibaut Montes</title>
+
+
+
+
+
+
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="Thibaut Montes">
+<meta property="og:title" content="Optimal Quantization with PyTorch - Part 2: Implementation of Stochastic Gradient Descent">
+
+
+  <link rel="canonical" href="https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/">
+  <meta property="og:url" content="https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/">
+
+
+
+  <meta property="og:description" content=" In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. In my previous blog post, the use of PyTorch for Lloyd allowed me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. However, in this article, we do not observe the same behavior, this pytorch implementation is slower than the numpy one. Moreover, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in torch.optim. Again, this implementation does not speed up the optimization (on the contrary) but it opens the door to other use of the autograd algorithm with other methods (e.g. in the deterministic case).All explanations are accompanied by some code examples in Python and is available in the following Github repository: montest/stochastic-methods-optimal-quantization.">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2023-06-12T00:00:00+02:00">
+
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Thibaut Montes",
+      "url" : "https://montest.github.io",
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="https://montest.github.io/feed.xml" type="application/atom+xml" rel="alternate" title="Thibaut Montes Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="https://montest.github.io/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+    
+
+<!-- start custom head snippets -->
+
+<link rel="apple-touch-icon" sizes="57x57" href="https://montest.github.io/images/apple-touch-icon-57x57.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="60x60" href="https://montest.github.io/images/apple-touch-icon-60x60.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="72x72" href="https://montest.github.io/images/apple-touch-icon-72x72.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="76x76" href="https://montest.github.io/images/apple-touch-icon-76x76.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="114x114" href="https://montest.github.io/images/apple-touch-icon-114x114.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="120x120" href="https://montest.github.io/images/apple-touch-icon-120x120.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="144x144" href="https://montest.github.io/images/apple-touch-icon-144x144.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="152x152" href="https://montest.github.io/images/apple-touch-icon-152x152.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="180x180" href="https://montest.github.io/images/apple-touch-icon-180x180.png?v=M44lzPylqQ">
+<link rel="icon" type="image/png" href="https://montest.github.io/images/optim2d_bokeh.png?v=M44lzPylqQ" sizes="32x32">
+<link rel="icon" type="image/png" href="https://montest.github.io/images/optim2d_bokeh.png?v=M44lzPylqQ" sizes="192x192">
+<link rel="icon" type="image/png" href="https://montest.github.io/images/optim2d_bokeh.png?v=M44lzPylqQ" sizes="96x96">
+<link rel="icon" type="image/png" href="https://montest.github.io/images/optim2d_bokeh.png?v=M44lzPylqQ" sizes="16x16">
+<link rel="manifest" href="https://montest.github.io/images/manifest.json?v=M44lzPylqQ">
+<link rel="mask-icon" href="https://montest.github.io/images/safari-pinned-tab.svg?v=M44lzPylqQ" color="#000000">
+<link rel="shortcut icon" href="/images/optim2d_bokeh.png?v=M44lzPylqQ">
+<meta name="msapplication-TileColor" content="#000000">
+<meta name="msapplication-TileImage" content="https://montest.github.io/images/mstile-144x144.png?v=M44lzPylqQ">
+<meta name="msapplication-config" content="https://montest.github.io/images/browserconfig.xml?v=M44lzPylqQ">
+<meta name="theme-color" content="#ffffff">
+<link rel="stylesheet" href="https://montest.github.io/assets/css/academicons.css"/>
+
+<script type="text/x-mathjax-config"> MathJax.Hub.Config({ TeX: { equationNumbers: { autoNumber: "all" } } }); </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML' async></script>
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg"><a href="https://montest.github.io/">Thibaut Montes</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/resume/">Resume</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/year-archive/">Blog Posts</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/publications/">Publications</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/talks/">Talks</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/research/">Research</a></li>
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+    
+
+
+
+
+
+<div id="main" role="main">
+  
+
+
+  <div class="sidebar sticky">
+  
+
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+  <div class="author__avatar">
+    
+    	<img src="https://montest.github.io/images/me.jpg" class="author__avatar" alt="Thibaut Montes, PhD">
+    
+  </div>
+
+  <div class="author__content">
+    <h3 class="author__name">Thibaut Montes, PhD</h3>
+    <p class="author__bio">Senior Machine Learning Researcher</p>
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li><i class="fa fa-fw fa-map-marker" aria-hidden="true"></i> Talkwalker, Luxembourg</li>
+      
+      
+      
+      
+      
+       
+      
+      
+      
+      
+        <li><a href="https://www.linkedin.com/in/thibaut-montes-194a77a9"><i class="fab fa-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+      
+      
+      
+      
+      
+      
+        <li><a href="https://github.com/montest"><i class="fab fa-github" aria-hidden="true"></i> Github</a></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+        <li><a href="https://scholar.google.fr/citations?user=o8jICwcAAAAJ&hl=en"><i class="fas fa-graduation-cap"></i> Google Scholar</a></li>
+      
+      
+      
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Optimal Quantization with PyTorch - Part 2: Implementation of Stochastic Gradient Descent">
+    <meta itemprop="description" content=" In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. In my previous blog post, the use of PyTorch for Lloyd allowed me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. However, in this article, we do not observe the same behavior, this pytorch implementation is slower than the numpy one. Moreover, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in torch.optim. Again, this implementation does not speed up the optimization (on the contrary) but it opens the door to other use of the autograd algorithm with other methods (e.g. in the deterministic case).All explanations are accompanied by some code examples in Python and is available in the following Github repository: montest/stochastic-methods-optimal-quantization.">
+    <meta itemprop="datePublished" content="June 12, 2023">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 class="page__title" itemprop="headline">Optimal Quantization with PyTorch - Part 2: Implementation of Stochastic Gradient Descent
+</h1>
+          
+            <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  16 minute read
+	
+</p>
+          
+        
+
+        
+          <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-06-12T00:00:00+02:00">June 12, 2023</time></p>
+        
+
+
+        
+
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        <h1 class="no_toc" id="table-of-contents">Table of contents</h1>
+
+<ul id="markdown-toc">
+  <li><a href="#introduction" id="markdown-toc-introduction">Introduction</a></li>
+  <li><a href="#short-reminder" id="markdown-toc-short-reminder">Short Reminder</a>    <ul>
+      <li><a href="#distortion-function" id="markdown-toc-distortion-function">Distortion function</a></li>
+      <li><a href="#gradient-of-the-distortion-function" id="markdown-toc-gradient-of-the-distortion-function">Gradient of the distortion function</a></li>
+      <li><a href="#stochastic-competitive-learning-vector-quantization-algorithm" id="markdown-toc-stochastic-competitive-learning-vector-quantization-algorithm">Stochastic Competitive Learning Vector Quantization algorithm</a></li>
+    </ul>
+  </li>
+  <li><a href="#numpy-implementation" id="markdown-toc-numpy-implementation">Numpy Implementation</a></li>
+  <li><a href="#pytorch-implementation" id="markdown-toc-pytorch-implementation">PyTorch Implementation</a>    <ul>
+      <li><a href="#standard-implementation" id="markdown-toc-standard-implementation">Standard implementation</a>        <ul>
+          <li><a href="#remark" id="markdown-toc-remark">Remark</a></li>
+        </ul>
+      </li>
+      <li><a href="#gradient-descent-with-the-use-of-autograd" id="markdown-toc-gradient-descent-with-the-use-of-autograd">Gradient descent with the use of autograd</a></li>
+    </ul>
+  </li>
+  <li><a href="#numerical-experiments" id="markdown-toc-numerical-experiments">Numerical experiments</a>    <ul>
+      <li><a href="#remark-1" id="markdown-toc-remark-1">Remark</a></li>
+    </ul>
+  </li>
+  <li><a href="#conclusion" id="markdown-toc-conclusion">Conclusion</a></li>
+</ul>
+
+<h1 id="introduction">Introduction</h1>
+<p>In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. In <a href="/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/">my previous blog post</a>, the use of PyTorch allowed me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. However, in this article, we do not observe the same behavior, this pytorch implementation is slower than the numpy one. Moreover, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in <code class="language-plaintext highlighter-rouge">torch.optim</code>. Again, this implementation does not speed up the optimization (on the contrary) but it opens the door to other use of the autograd algorithm with other methods (e.g. in the deterministic case). I compare the implementation I made in numpy in a <a href="/2022/02/13/StochasticMethodsForOptimQuantif/">previous blog post</a> with the PyTorch version and study how it scales. Moreover, I explore the use of <code class="language-plaintext highlighter-rouge">autograd</code> in PyTorch.</p>
+
+<p>All the codes presented in this blog post are available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a></p>
+
+<h1 id="short-reminder">Short Reminder</h1>
+
+<p>Using the notations I used in my previous articles (<a href="/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/">1</a>, <a href="/2022/02/13/StochasticMethodsForOptimQuantif/">2</a> and <a href="/2022/06/21/DeterministicMethodsForOptimQuantifUnivariates/">3</a>), I first remind the expression of the minimization problem we want to solve in order to build an optimal quantizer. Then, I detail the expression of the gradient of the distortion and, finally, the stochastic version of CLVQ algorithm used to build optimal quantizers.</p>
+
+<h3 id="distortion-function">Distortion function</h3>
+
+<p>In order to build an optimal quantizer of $X$, we are looking for the best approximation of $X$ in the sense that we want to find the quantizer $\widehat X^N$ which is the \(\arg \min\) of the quadratic distortion function at level $N$ induced by an $N$-tuple $x := (x_1^N, \dots, x_N^N)$</p>
+
+\[\textrm{arg min}_{(\mathbb{R})^N} \mathcal{Q}_{2,N},\]
+
+<p>where \(\mathcal{Q}_{2,N}\) given by</p>
+
+\[\mathcal{Q}_{2,N} : x \longmapsto \frac{1}{2} \Vert X - \widehat X^N \Vert_{_2}^2 .\]
+
+<h3 id="gradient-of-the-distortion-function">Gradient of the distortion function</h3>
+
+<p>The \(\arg \min\) of the distortion can be found by differentiating the distortion function \(\mathcal{Q}_{2,N}\). The gradient \(\nabla \mathcal{Q}_{2,N}\) is given by</p>
+
+\[\nabla \mathcal{Q}_{2,N} (x) = \bigg[ \int_{C_i (\Gamma_N)} (x_i^N - \xi ) \mathbb{P}_{_{X}} (d \xi) \bigg]_{i = 1, \dots, N } = \Big[ \mathbb{E}\big[ \mathbb{1}_{X \in C_i (\Gamma_N)} ( x_i^N - X ) \big] \Big]_{i = 1, \dots, N }.\]
+
+<h3 id="stochastic-competitive-learning-vector-quantization-algorithm">Stochastic Competitive Learning Vector Quantization algorithm</h3>
+
+<p>Then, using the gradient, one can use a Stochastic Gradient Descent, also called the CLVQ algorithm in order to build an optimal quantizer. Let $x^{[n]}$ be the quantizer of size $N$ obtained after $n$ iterations, the Stochastic CLVQ method with initial condition $x^0$ is defined as follows</p>
+
+\[x^{[n+1]} = x^{[n]} - \gamma_{n+1} \nabla \textit{q}_{2,N} (x^{[n]}, \xi_{n+1})\]
+
+<p>with $\xi_1, \dots, \xi_n, \dots$ a sequence of independent copies of $X$ and</p>
+
+\[\nabla \textit{q}_{2,N} (x^{[n]}, \xi_{n+1}) = \Big( \mathbb{1}_{\xi_{n+1} \in C_i (\Gamma_N)} ( x_i^{[n]} - \xi_{n+1} ) \Big)_{1 \leq i \leq N}.\]
+
+<h1 id="numpy-implementation">Numpy Implementation</h1>
+
+<p>I detail below a Python code example using numpy, which is an optimized version of the code I detailed in my <a href="/2022/02/13/StochasticMethodsForOptimQuantif/">previous blog post</a> of the stochastic CLVQ. It samples <code class="language-plaintext highlighter-rouge">M</code> samples of the distribution you want to quantize. Then it applies <code class="language-plaintext highlighter-rouge">num_epochs</code> times <code class="language-plaintext highlighter-rouge">M</code> gradient descent steps in order to build an optimal quantizer of size <code class="language-plaintext highlighter-rouge">N</code>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">trange</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">get_probabilities_and_distortion</span>
+
+<span class="k">def</span> <span class="nf">lr</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">N</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mf">1.</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">clvq_method_dim_1</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_epochs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="s">"""
+    Apply `nbr_iter` iterations of the Competitive Learning Vector Quantization algorithm in order to build an optimal
+     quantizer of size `N` for a Gaussian random variable. This implementation is done using numpy.
+
+    N: number of centroids
+    M: number of samples to generate
+    num_epochs: number of epochs of fixed point search
+    seed: numpy seed for reproducibility
+
+    Returns: centroids, probabilities associated to each centroid and distortion
+    """</span>
+    <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>  <span class="c1"># Set seed in order to be able to reproduce the results
+</span>
+    <span class="c1"># Draw M samples of gaussian variable
+</span>    <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+
+    <span class="c1"># Initialize the Voronoi Quantizer randomly and sort it
+</span>    <span class="n">centroids</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">centroids</span><span class="p">.</span><span class="n">sort</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">trange</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s">'CLVQ method - N: </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s"> - M: </span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s"> - seed: </span><span class="si">{</span><span class="n">seed</span><span class="si">}</span><span class="s"> (numpy)'</span><span class="p">)</span> <span class="k">as</span> <span class="n">epochs</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">epochs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+                <span class="c1"># Compute the vertices that separate the centroids
+</span>                <span class="n">vertices</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">centroids</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">centroids</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                <span class="c1"># Find the index of the centroid that is closest to each sample
+</span>                <span class="n">index_closest_centroid</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">vertices</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:])</span>
+                <span class="n">gamma_n</span> <span class="o">=</span> <span class="n">lr</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">epoch</span><span class="o">*</span><span class="n">M</span> <span class="o">+</span> <span class="n">step</span><span class="p">)</span>
+                <span class="c1"># Update the closest centroid using the local gradient
+</span>                <span class="n">centroids</span><span class="p">[</span><span class="n">index_closest_centroid</span><span class="p">]</span> <span class="o">=</span> <span class="n">centroids</span><span class="p">[</span><span class="n">index_closest_centroid</span><span class="p">]</span> <span class="o">-</span> <span class="n">gamma_n</span> <span class="o">*</span> <span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">index_closest_centroid</span><span class="p">]</span> <span class="o">-</span> <span class="n">xs</span><span class="p">[</span><span class="n">step</span><span class="p">])</span>
+
+    <span class="n">probabilities</span><span class="p">,</span> <span class="n">distortion</span> <span class="o">=</span> <span class="n">get_probabilities_and_distortion</span><span class="p">(</span><span class="n">centroids</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">probabilities</span><span class="p">,</span> <span class="n">distortion</span>
+</code></pre></div></div>
+
+<p>Compared to the version presented in a previous blog post, I reuse the same <code class="language-plaintext highlighter-rouge">M</code> samples each time. and do not resample for each epoch,  Moreover, the probabilities and the distortion are computed at the end using the following method <code class="language-plaintext highlighter-rouge">get_probabilities_and_distortion</code> where <code class="language-plaintext highlighter-rouge">centroids</code> are the centroids and <code class="language-plaintext highlighter-rouge">xs</code> are the <code class="language-plaintext highlighter-rouge">M</code> samples.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<span class="k">def</span> <span class="nf">get_probabilities_and_distortion</span><span class="p">(</span><span class="n">centroids</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">],</span> <span class="n">xs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">]):</span>
+    <span class="s">"""
+    Compute the probabilities and the distortion associated to `centroids` using the samples `xs`
+    centroids: centroids of size `N`
+    xs: `M` samples to use in order to compute the probabilities and the distortion
+
+    Returns: probabilities associated to each centroid and distortion
+    """</span>
+    <span class="n">centroids_</span> <span class="o">=</span> <span class="n">centroids</span><span class="p">.</span><span class="n">clone</span><span class="p">().</span><span class="n">detach</span><span class="p">()</span> <span class="k">if</span> <span class="n">torch</span><span class="p">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">centroids</span><span class="p">)</span> <span class="k">else</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">centroids</span><span class="p">)</span>
+    <span class="n">xs_</span> <span class="o">=</span> <span class="n">xs</span><span class="p">.</span><span class="n">clone</span><span class="p">().</span><span class="n">detach</span><span class="p">()</span> <span class="k">if</span> <span class="n">torch</span><span class="p">.</span><span class="n">is_tensor</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span> <span class="k">else</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xs_</span><span class="p">)</span>
+    <span class="n">vertices</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">centroids_</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">centroids_</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">index_closest_centroid</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">xs_</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">vertices</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">).</span><span class="nb">long</span><span class="p">()</span>
+    <span class="c1"># Compute the probability of each centroid
+</span>    <span class="n">probabilities</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">index_closest_centroid</span><span class="p">).</span><span class="n">to</span><span class="p">(</span><span class="s">'cpu'</span><span class="p">).</span><span class="n">numpy</span><span class="p">()</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="c1"># Compute the final distortion between the samples and the quantizer
+</span>    <span class="n">distortion</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">torch</span><span class="p">.</span><span class="nb">pow</span><span class="p">(</span><span class="n">xs_</span> <span class="o">-</span> <span class="n">centroids_</span><span class="p">[</span><span class="n">index_closest_centroid</span><span class="p">],</span> <span class="mi">2</span><span class="p">)).</span><span class="n">item</span><span class="p">()</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">M</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">probabilities</span><span class="p">,</span> <span class="n">distortion</span>
+</code></pre></div></div>
+
+<!-- 
+
+The advantage of this optimized version is twofold. First, it drastically reduces the computation time in order to build an optimal quantizer. Second, this new version is written is a more pythonic way compared to the one detailed in my [previous article][blog_post_stochastic_methods]. This simplifies greatly the conversion of this code to PyTorch, as you can see in the next section. -->
+
+<h1 id="pytorch-implementation">PyTorch Implementation</h1>
+
+<h2 id="standard-implementation">Standard implementation</h2>
+
+<p>Again, as in my previous blog post, using the numpy code version written above, we can easily implement the CLVQ algorithm in PyTorch. In <code class="language-plaintext highlighter-rouge">clvq_method_dim_1_pytorch</code>, I used the same variables and notations as in the numpy implementation. There is one extra variable <code class="language-plaintext highlighter-rouge">device</code> that should have one of the two values <code class="language-plaintext highlighter-rouge">cpu</code> or <code class="language-plaintext highlighter-rouge">cuda</code> that defines where the computations will be done.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">trange</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">get_probabilities_and_distortion</span>
+
+<span class="k">def</span> <span class="nf">lr</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">N</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mf">1.</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">clvq_method_dim_1_pytorch</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_epochs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="s">"""
+    Apply `nbr_iter` iterations of the Competitive Learning Vector Quantization algorithm in order to build an optimal
+     quantizer of size `N` for a Gaussian random variable. This implementation is done using torch.
+
+    N: number of centroids
+    M: number of samples to generate
+    num_epochs: number of epochs of fixed point search
+    device: device on which perform the computations: "cuda" or "cpu"
+    seed: numpy seed for reproducibility
+
+    Returns: centroids, probabilities associated to each centroid and distortion
+    """</span>
+    <span class="n">torch</span><span class="p">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>  <span class="c1"># Set seed in order to be able to reproduce the results
+</span>    <span class="k">with</span> <span class="n">torch</span><span class="p">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="c1"># Draw M samples of gaussian variable
+</span>        <span class="n">xs</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+        <span class="n">xs</span> <span class="o">=</span> <span class="n">xs</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># send samples to correct device
+</span>
+        <span class="c1"># Initialize the Voronoi Quantizer randomly and sort it
+</span>        <span class="n">centroids</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+        <span class="n">centroids</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">centroids</span><span class="p">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">centroids</span> <span class="o">=</span> <span class="n">centroids</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># send centroids to correct device
+</span>
+        <span class="k">with</span> <span class="n">trange</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s">'CLVQ method - N: </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s"> - M: </span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s"> - seed: </span><span class="si">{</span><span class="n">seed</span><span class="si">}</span><span class="s"> (pytorch: </span><span class="si">{</span><span class="n">device</span><span class="si">}</span><span class="s">)'</span><span class="p">)</span> <span class="k">as</span> <span class="n">epochs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">epochs</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+                    <span class="c1"># Compute the vertices that separate the centroids
+</span>                    <span class="n">vertices</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">centroids</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">centroids</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                    <span class="c1"># Find the index of the centroid that is closest to each sample
+</span>                    <span class="n">index_closest_centroid</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">vertices</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]).</span><span class="nb">long</span><span class="p">()</span>
+                    <span class="n">gamma_n</span> <span class="o">=</span> <span class="mf">1e-2</span>
+                    <span class="c1"># gamma_n = lr(N, epoch*M + step)
+</span>                    <span class="c1"># Update the closest centroid using the local gradient
+</span>                    <span class="n">centroids</span><span class="p">[</span><span class="n">index_closest_centroid</span><span class="p">]</span> <span class="o">=</span> <span class="n">centroids</span><span class="p">[</span><span class="n">index_closest_centroid</span><span class="p">]</span> <span class="o">-</span> <span class="n">gamma_n</span> <span class="o">*</span> <span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">index_closest_centroid</span><span class="p">]</span> <span class="o">-</span> <span class="n">xs</span><span class="p">[</span><span class="n">step</span><span class="p">])</span>
+
+    <span class="n">probabilities</span><span class="p">,</span> <span class="n">distortion</span> <span class="o">=</span> <span class="n">get_probabilities_and_distortion</span><span class="p">(</span><span class="n">centroids</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">centroids</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="s">'cpu'</span><span class="p">).</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">probabilities</span><span class="p">,</span> <span class="n">distortion</span>
+</code></pre></div></div>
+
+<h3 id="remark">Remark</h3>
+<blockquote>
+  <p>Now that the converted the numpy implementation into PyTorch, we can try to take advantage of another big feature of PyTorch, which is <code class="language-plaintext highlighter-rouge">autograd</code>. It is described as follow in PyTorch documentation:</p>
+</blockquote>
+
+<blockquote>
+  <p><em>PyTorch’s Autograd feature is part of what make PyTorch flexible and fast for building machine learning projects. It allows for the rapid and easy computation of multiple partial derivatives (also referred to as gradients) over a complex computation. This operation is central to backpropagation-based neural network learning.</em></p>
+
+  <p><em>The power of autograd comes from the fact that it traces your computation dynamically at runtime, meaning that if your model has decision branches, or loops whose lengths are not known until runtime, the computation will still be traced correctly, and you’ll get correct gradients to drive learning. This, combined with the fact that your models are built in Python, offers far more flexibility than frameworks that rely on static analysis of a more rigidly-structured model for computing gradients.</em></p>
+</blockquote>
+
+<blockquote>
+  <p>This will allows us to not compute the gradient by hand and most importantly to take advantage of all the optimizers already implemented in <code class="language-plaintext highlighter-rouge">torch.optim</code> such as SGD with momentum or ADAM.</p>
+</blockquote>
+
+<h2 id="gradient-descent-with-the-use-of-autograd">Gradient descent with the use of autograd</h2>
+
+<p>First, we define <code class="language-plaintext highlighter-rouge">Quantizer</code> that inherit from <code class="language-plaintext highlighter-rouge">torch.nn.Module</code> that, at initialization, creates a random quantizer of size <code class="language-plaintext highlighter-rouge">N</code> and set <code class="language-plaintext highlighter-rouge">self.centroids</code> as parameters for which we need to compute the gradient using <code class="language-plaintext highlighter-rouge">.requires_grad_(True)</code>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
+
+<span class="k">class</span> <span class="nc">Quantizer</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Quantizer</span><span class="p">,</span> <span class="bp">self</span><span class="p">).</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="n">centroids</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+        <span class="n">centroids</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">centroids</span><span class="p">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">centroids</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Parameter</span><span class="p">(</span>
+            <span class="n">centroids</span><span class="p">.</span><span class="n">clone</span><span class="p">().</span><span class="n">detach</span><span class="p">().</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">).</span><span class="n">requires_grad_</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="p">)</span>
+</code></pre></div></div>
+
+<p>Then, we can create an instance of this quantizer and set it in training mode, which allows for the gradients to accumulate.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">quantizer</span> <span class="o">=</span> <span class="n">Quantizer</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+<span class="n">quantizer</span><span class="p">.</span><span class="n">train</span><span class="p">()</span>
+<span class="n">quantizer</span><span class="p">.</span><span class="n">zero_grad</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>Then the optimizer is defined using one of the following</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">optim</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">optim</span><span class="p">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">quantizer</span><span class="p">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="c1"># optim = torch.optim.SGD(quantizer.parameters(), lr=1e-2, momentum=0.9)
+# optimizer = torch.Adam(quantizer.parameters(), lr=1e-2)
+</span></code></pre></div></div>
+
+<p>Finally, one step of gradient descent can be applied using one sample at index <code class="language-plaintext highlighter-rouge">step</code> of <code class="language-plaintext highlighter-rouge">xs</code> by following the below steps:</p>
+<ol>
+  <li>Find the closest centroid to the sample while making sure we do not accumulate the gradients, for that the use of <code class="language-plaintext highlighter-rouge">with torch.no_grad():</code> is essential,</li>
+  <li>Make sure the gradients are set to zero in <code class="language-plaintext highlighter-rouge">optim</code> (or equivalently in <code class="language-plaintext highlighter-rouge">quantizer.parameters()</code>) by calling <code class="language-plaintext highlighter-rouge">optim.zero_grad()</code>,</li>
+  <li>Compute the loss, in our case the distortion,</li>
+  <li>Compute the gradients using <code class="language-plaintext highlighter-rouge">loss.backward()</code>,</li>
+  <li>Apply the gradient descent step with <code class="language-plaintext highlighter-rouge">optim.step()</code>.</li>
+</ol>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">with</span> <span class="n">torch</span><span class="p">.</span><span class="n">no_grad</span><span class="p">():</span>
+    <span class="c1"># Compute the vertices that separate the centroids
+</span>    <span class="n">vertices</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">quantizer</span><span class="p">.</span><span class="n">centroids</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">quantizer</span><span class="p">.</span><span class="n">centroids</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="c1"># Find the index of the centroid that is closest to each sample
+</span>    <span class="n">index_closest_centroid</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">vertices</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]).</span><span class="nb">long</span><span class="p">()</span>
+<span class="c1"># Set the gradients to zero
+</span><span class="n">optim</span><span class="p">.</span><span class="n">zero_grad</span><span class="p">()</span>
+<span class="c1"># Compute the loss
+</span><span class="n">loss</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">quantizer</span><span class="p">.</span><span class="n">centroids</span><span class="p">[</span><span class="n">index_closest_centroid</span><span class="p">]</span> <span class="o">-</span> <span class="n">xs</span><span class="p">[</span><span class="n">step</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span>
+<span class="c1"># Compute the gradient
+</span><span class="n">loss</span><span class="p">.</span><span class="n">backward</span><span class="p">()</span>
+<span class="c1"># Apply one step of the gradient descent
+</span><span class="n">optim</span><span class="p">.</span><span class="n">step</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>Finally, I give the full implementation below. Concerning the optimizer choice, I chose <code class="language-plaintext highlighter-rouge">SGD</code> without momentum for my tests / benchmark in order to exactly replicate the results obtained in <code class="language-plaintext highlighter-rouge">clvq_method_dim_1_pytorch</code> with <code class="language-plaintext highlighter-rouge">lr=1e-2</code>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">clvq_method_dim_1_pytorch_autograd</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_epochs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="s">"""
+    Apply `nbr_iter` iterations of the Competitive Learning Vector Quantization algorithm in order to build an optimal
+     quantizer of size `N` for a Gaussian random variable. This implementation is done using torch.
+
+    N: number of centroids
+    M: number of samples to generate
+    num_epochs: number of epochs of fixed point search
+    device: device on which perform the computations: "cuda" or "cpu"
+    seed: numpy seed for reproducibility
+
+    Returns: centroids, probabilities associated to each centroid and distortion
+    """</span>
+    <span class="n">torch</span><span class="p">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>  <span class="c1"># Set seed in order to be able to reproduce the results
+</span>
+    <span class="c1"># Draw M samples of gaussian variable
+</span>    <span class="n">xs</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="n">xs</span> <span class="o">=</span> <span class="n">xs</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># send samples to correct device
+</span>
+    <span class="n">quantizer</span> <span class="o">=</span> <span class="n">Quantizer</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+    <span class="n">quantizer</span><span class="p">.</span><span class="n">train</span><span class="p">()</span>
+    <span class="n">quantizer</span><span class="p">.</span><span class="n">zero_grad</span><span class="p">()</span> 
+    <span class="n">optim</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">optim</span><span class="p">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">quantizer</span><span class="p">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># optim = torch.optim.SGD(quantizer.parameters(), lr=1e-2, momentum=0.9)
+</span>    <span class="c1"># optim = torch.optim.AdamW(quantizer.parameters(), lr=1e-2)
+</span>    <span class="k">with</span> <span class="n">trange</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s">'CLVQ method - N: </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s"> - M: </span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s"> - seed: </span><span class="si">{</span><span class="n">seed</span><span class="si">}</span><span class="s"> (pytorch autograd: </span><span class="si">{</span><span class="n">device</span><span class="si">}</span><span class="s">)'</span><span class="p">)</span> <span class="k">as</span> <span class="n">epochs</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">epochs</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">torch</span><span class="p">.</span><span class="n">no_grad</span><span class="p">():</span>
+                    <span class="c1"># Compute the vertices that separate the centroids
+</span>                    <span class="n">vertices</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">quantizer</span><span class="p">.</span><span class="n">centroids</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">quantizer</span><span class="p">.</span><span class="n">centroids</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                    <span class="c1"># Find the index of the centroid that is closest to each sample
+</span>                    <span class="n">index_closest_centroid</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="n">step</span><span class="p">,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">vertices</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:]).</span><span class="nb">long</span><span class="p">()</span>
+                <span class="c1"># Set the gradients to zero
+</span>                <span class="n">optim</span><span class="p">.</span><span class="n">zero_grad</span><span class="p">()</span>
+                <span class="c1"># Compute the loss
+</span>                <span class="n">loss</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">quantizer</span><span class="p">.</span><span class="n">centroids</span><span class="p">[</span><span class="n">index_closest_centroid</span><span class="p">]</span> <span class="o">-</span> <span class="n">xs</span><span class="p">[</span><span class="n">step</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span>
+                <span class="c1"># Compute the gradient
+</span>                <span class="n">loss</span><span class="p">.</span><span class="n">backward</span><span class="p">()</span>
+                <span class="c1"># Apply one step of the gradient descent
+</span>                <span class="n">optim</span><span class="p">.</span><span class="n">step</span><span class="p">()</span>
+    <span class="n">quantizer</span><span class="p">.</span><span class="nb">eval</span><span class="p">()</span>
+    <span class="n">probabilities</span><span class="p">,</span> <span class="n">distortion</span> <span class="o">=</span> <span class="n">get_probabilities_and_distortion</span><span class="p">(</span><span class="n">quantizer</span><span class="p">.</span><span class="n">centroids</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">quantizer</span><span class="p">.</span><span class="n">centroids</span><span class="p">.</span><span class="n">clone</span><span class="p">().</span><span class="n">detach</span><span class="p">().</span><span class="n">to</span><span class="p">(</span><span class="s">'cpu'</span><span class="p">).</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">probabilities</span><span class="p">,</span> <span class="n">distortion</span>
+</code></pre></div></div>
+
+<h1 id="numerical-experiments">Numerical experiments</h1>
+
+<p>Now, I compare the average elapsed time of an epoch of the previous three algorithms. I analyze the computation time of the algorithms for different sample size (<code class="language-plaintext highlighter-rouge">M</code>), grid size (<code class="language-plaintext highlighter-rouge">N</code>) and devices for the PyTorch implementation.
+All the tests were conducted on Google Colab with 16 Go of RAM and a <code class="language-plaintext highlighter-rouge">NVIDIA T4</code> GPU.</p>
+
+<h3 id="remark-1">Remark</h3>
+<blockquote>
+  <p>When comparing numerical methods for building an optimal quantizer, it’s important to note that using the same seed and gradient descent parameters in both the numpy and PyTorch implementations does not result in identical centroids and probabilities. This is due to the fact that Numpy and PyTorch use different random generators, resulting in slightly different initial random samples. In order to replicate the results exactly across all algorithms, it is necessary to use a single random generator for all methods and set the same seed at the beginning of each method.</p>
+
+  <p>However, those differences have no impact when benchmarking each method and looking at the average time of an epoch.</p>
+</blockquote>
+
+<p>In order to reproduce the benchmark’s result, you can use the script <code class="language-plaintext highlighter-rouge">benchmark/run_clvq.py</code> in the GitHub repository <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+
+<p>For different values of <code class="language-plaintext highlighter-rouge">M</code>, in the top graph, I display for each method, the average time of an iteration for several values of <code class="language-plaintext highlighter-rouge">N</code>.
+In the bottom graph, I plot, for each <code class="language-plaintext highlighter-rouge">N</code>, the ratio between the average time for each method and the average time spent by the numpy implementation running on <code class="language-plaintext highlighter-rouge">cpu</code>.</p>
+
+<center>
+    <figcaption><font size="4">Methods comparison for M=20000</font></figcaption>
+    <img alt="method_comparison_M_20000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_method_comparison_M_20000.svg" width="700" />
+    <img alt="ratio_comparison_M_20000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_20000.svg" width="700" />
+</center>
+<p><br /><br /></p>
+
+<center>
+    <figcaption><font size="4">Methods comparison for M=50000</font></figcaption>
+    <img alt="method_comparison_M_50000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_method_comparison_M_50000.svg" width="700" />
+    <img alt="ratio_comparison_M_50000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_50000.svg" width="700" />
+</center>
+<p><br /><br /></p>
+
+<center>
+    <figcaption><font size="4">Methods comparison for M=100000</font></figcaption>
+    <img alt="method_comparison_M_100000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_method_comparison_M_100000.svg" width="700" />
+    <img alt="ratio_comparison_M_100000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_100000.svg" width="700" />
+</center>
+
+<center>
+    <figcaption><font size="4">Methods comparison for M=200000</font></figcaption>
+    <img alt="method_comparison_M_200000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_method_comparison_M_200000.svg" width="700" />
+    <img alt="ratio_comparison_M_200000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_200000.svg" width="700" />
+</center>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>In the previous graphs, we can notice that the implementation in Pytorch mimicking numpy is a lot slower compared to the one on Numpy (around 4 to 8 times slower on cpu and 10 to 20 times slower on cuda). This is maybe because of the batch size equal to one which does not fully take advantage of Pytorch. Indeed, we apply the gradient descent with one sample at the time. It would be of interest to test with bigger batch size. Moreover, the pytorch implementation allows us to have access to all the optimizers already implemented in Pytorch and choosing one that would speed up the convergence. Moreover, this code implementation in Pytorch is probably not optimal and one can find optimized version of it, lowering the ratios.</p>
+
+<p>Concerning the Pytorch implementation using autograd, the ratios are even bigger up to 70 times slower when running on cuda and up to 30 on cpu. But those results are to be expected. Indeed, when using autograd, we perform more computations by computing the loss then differentiating with respect to all the centroids. While, when we compute directly the gradient and apply by hand the gradient descent, we compute if directly for the centroid which is the closest to the sample. Hence, again, it would be interesting to study the behavior of the autograd method with bigger batch size (with values $&gt;1$) and see if the automatic differentiation can be of interest.</p>
+
+<p>To conclude, in this case, the pytorch implementation with autograd is not interesting from on optimization point of view but it opens the door to more possibilities and applications, e.g. in the deterministic case in order to avoid computing the gradient by hand or in higher dimension.
+Hence, <strong>stay tuned for more updates</strong> 😃.</p>
+
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+  
+
+
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fa fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="https://montest.github.io/tags/#numerical-probability" class="page__taxonomy-item" rel="tag">Numerical Probability</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://montest.github.io/tags/#optimal-quantization" class="page__taxonomy-item" rel="tag">Optimal Quantization</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://montest.github.io/tags/#optimization" class="page__taxonomy-item" rel="tag">Optimization</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://montest.github.io/tags/#pytorch" class="page__taxonomy-item" rel="tag">PyTorch</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://montest.github.io/tags/#stochastic-gradient-descent" class="page__taxonomy-item" rel="tag">Stochastic Gradient Descent</a>
+    
+    </span>
+  </p>
+
+
+
+
+      </footer>
+
+      
+
+<section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?text=https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://plus.google.com/share?url=https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+      
+
+
+  <nav class="pagination">
+    
+      <a href="https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/" class="pagination--pager" title="Optimal Quantization with PyTorch - Part 1: Implementation of Stochastic Lloyd Method
+">Previous</a>
+    
+    
+      <a href="#" class="pagination--pager disabled">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      
+        <h4 class="page__related-title">You May Also Enjoy</h4>
+      
+      <div class="grid__wrapper">
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/" rel="permalink">Optimal Quantization with PyTorch - Part 1: Implementation of Stochastic Lloyd Method
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  9 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-03-16T00:00:00+01:00">March 16, 2023</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width="250" /> In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm, aka K-means, in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2022/06/21/DeterministicMethodsForOptimQuantifUnivariates/" rel="permalink">Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  23 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2022-06-21T00:00:00+02:00">June 21, 2022</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/univariate/distortion_normal_convergence.gif" width="300" /> In my previous blog post, I detailed the methods used to build an optimal Voronoï quantizer of random vectors \(X\) whatever the dimension \(d\). In this post, I will focus on real valued random variables and present faster methods for dimension $1$.</p>
+
+<p>All the code presented in this blog post is available in the following Github repository: <a href="https://github.com/montest/deterministic-methods-optimal-quantization">montest/deterministic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2022/02/13/StochasticMethodsForOptimQuantif/" rel="permalink">Stochastic Numerical Methods for Optimal Voronoï Quantization
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  19 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2022-02-13T00:00:00+01:00">February 13, 2022</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/N_50_random_lloyd_100000.gif" width="300" /> In this post, I remind what is quadratic optimal quantizations. Then, I explain the two algorithms that were first devised in order to build an optimal quantization of a random vector $X$, namely: the fixed-point search called <strong>Lloyd method</strong> and the stochastic gradient descent known as <strong>Competitive Learning Vector Quantization</strong> (CLVQ).</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+
+</div>
+
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+<a href="/sitemap/">Sitemap</a>
+<!-- end custom footer snippets -->
+
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+    
+    
+    
+      <li><a href="http://github.com/montest"><i class="fab fa-github" aria-hidden="true"></i> GitHub</a></li>
+    
+    
+    <li><a href="https://montest.github.io/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Thibaut Montes. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://github.com/academicpages/academicpages.github.io">AcademicPages</a>, a fork of <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    <script src="https://montest.github.io/assets/js/main.min.js"></script>
+
+
+
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5K8K92Y9P6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-5K8K92Y9P6');
+</script>
+
+
+
+
+
+
+
+
+  </body>
+</html>
+
