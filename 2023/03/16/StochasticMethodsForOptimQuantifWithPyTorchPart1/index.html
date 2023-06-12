@@ -1,0 +1,785 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+
+
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>Optimal Quantization with PyTorch - Part 1: Implementation of Stochastic Lloyd Method - Thibaut Montes</title>
+
+
+
+
+
+
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="Thibaut Montes">
+<meta property="og:title" content="Optimal Quantization with PyTorch - Part 1: Implementation of Stochastic Lloyd Method">
+
+
+  <link rel="canonical" href="https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/">
+  <meta property="og:url" content="https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/">
+
+
+
+  <meta property="og:description" content=" In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm, aka K-means, in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.All explanations are accompanied by some code examples in Python and is available in the following Github repository: montest/stochastic-methods-optimal-quantization.">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2023-03-16T00:00:00+01:00">
+
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Thibaut Montes",
+      "url" : "https://montest.github.io",
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="https://montest.github.io/feed.xml" type="application/atom+xml" rel="alternate" title="Thibaut Montes Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="https://montest.github.io/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+    
+
+<!-- start custom head snippets -->
+
+<link rel="apple-touch-icon" sizes="57x57" href="https://montest.github.io/images/apple-touch-icon-57x57.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="60x60" href="https://montest.github.io/images/apple-touch-icon-60x60.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="72x72" href="https://montest.github.io/images/apple-touch-icon-72x72.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="76x76" href="https://montest.github.io/images/apple-touch-icon-76x76.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="114x114" href="https://montest.github.io/images/apple-touch-icon-114x114.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="120x120" href="https://montest.github.io/images/apple-touch-icon-120x120.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="144x144" href="https://montest.github.io/images/apple-touch-icon-144x144.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="152x152" href="https://montest.github.io/images/apple-touch-icon-152x152.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="180x180" href="https://montest.github.io/images/apple-touch-icon-180x180.png?v=M44lzPylqQ">
+<link rel="icon" type="image/png" href="https://montest.github.io/images/optim2d_bokeh.png?v=M44lzPylqQ" sizes="32x32">
+<link rel="icon" type="image/png" href="https://montest.github.io/images/optim2d_bokeh.png?v=M44lzPylqQ" sizes="192x192">
+<link rel="icon" type="image/png" href="https://montest.github.io/images/optim2d_bokeh.png?v=M44lzPylqQ" sizes="96x96">
+<link rel="icon" type="image/png" href="https://montest.github.io/images/optim2d_bokeh.png?v=M44lzPylqQ" sizes="16x16">
+<link rel="manifest" href="https://montest.github.io/images/manifest.json?v=M44lzPylqQ">
+<link rel="mask-icon" href="https://montest.github.io/images/safari-pinned-tab.svg?v=M44lzPylqQ" color="#000000">
+<link rel="shortcut icon" href="/images/optim2d_bokeh.png?v=M44lzPylqQ">
+<meta name="msapplication-TileColor" content="#000000">
+<meta name="msapplication-TileImage" content="https://montest.github.io/images/mstile-144x144.png?v=M44lzPylqQ">
+<meta name="msapplication-config" content="https://montest.github.io/images/browserconfig.xml?v=M44lzPylqQ">
+<meta name="theme-color" content="#ffffff">
+<link rel="stylesheet" href="https://montest.github.io/assets/css/academicons.css"/>
+
+<script type="text/x-mathjax-config"> MathJax.Hub.Config({ TeX: { equationNumbers: { autoNumber: "all" } } }); </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML' async></script>
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg"><a href="https://montest.github.io/">Thibaut Montes</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/resume/">Resume</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/year-archive/">Blog Posts</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/publications/">Publications</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/talks/">Talks</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/research/">Research</a></li>
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+    
+
+
+
+
+
+<div id="main" role="main">
+  
+
+
+  <div class="sidebar sticky">
+  
+
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+  <div class="author__avatar">
+    
+    	<img src="https://montest.github.io/images/me.jpg" class="author__avatar" alt="Thibaut Montes, PhD">
+    
+  </div>
+
+  <div class="author__content">
+    <h3 class="author__name">Thibaut Montes, PhD</h3>
+    <p class="author__bio">Senior Machine Learning Researcher</p>
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li><i class="fa fa-fw fa-map-marker" aria-hidden="true"></i> Talkwalker, Luxembourg</li>
+      
+      
+      
+      
+      
+       
+      
+      
+      
+      
+        <li><a href="https://www.linkedin.com/in/thibaut-montes-194a77a9"><i class="fab fa-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+      
+      
+      
+      
+      
+      
+        <li><a href="https://github.com/montest"><i class="fab fa-github" aria-hidden="true"></i> Github</a></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+        <li><a href="https://scholar.google.fr/citations?user=o8jICwcAAAAJ&hl=en"><i class="fas fa-graduation-cap"></i> Google Scholar</a></li>
+      
+      
+      
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Optimal Quantization with PyTorch - Part 1: Implementation of Stochastic Lloyd Method">
+    <meta itemprop="description" content=" In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm, aka K-means, in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.All explanations are accompanied by some code examples in Python and is available in the following Github repository: montest/stochastic-methods-optimal-quantization.">
+    <meta itemprop="datePublished" content="March 16, 2023">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 class="page__title" itemprop="headline">Optimal Quantization with PyTorch - Part 1: Implementation of Stochastic Lloyd Method
+</h1>
+          
+            <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  9 minute read
+	
+</p>
+          
+        
+
+        
+          <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-03-16T00:00:00+01:00">March 16, 2023</time></p>
+        
+
+
+        
+
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        <h1 class="no_toc" id="table-of-contents">Table of contents</h1>
+
+<ul id="markdown-toc">
+  <li><a href="#introduction" id="markdown-toc-introduction">Introduction</a></li>
+  <li><a href="#short-reminder" id="markdown-toc-short-reminder">Short Reminder</a>    <ul>
+      <li><a href="#voronoï-quantization-in-dimension-1" id="markdown-toc-voronoï-quantization-in-dimension-1">Voronoï Quantization in dimension 1</a></li>
+      <li><a href="#optimal-quantization" id="markdown-toc-optimal-quantization">Optimal quantization</a></li>
+      <li><a href="#randomized-lloyd-algorithm" id="markdown-toc-randomized-lloyd-algorithm">Randomized Lloyd algorithm</a></li>
+    </ul>
+  </li>
+  <li><a href="#numpy-implementation" id="markdown-toc-numpy-implementation">Numpy Implementation</a></li>
+  <li><a href="#pytorch-implementation" id="markdown-toc-pytorch-implementation">PyTorch Implementation</a></li>
+  <li><a href="#numerical-experiments" id="markdown-toc-numerical-experiments">Numerical experiments</a></li>
+</ul>
+
+<h1 id="introduction">Introduction</h1>
+
+<p>In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm, aka K-Means, in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm. I compare the implementation I made in numpy in a <a href="/2022/02/13/StochasticMethodsForOptimQuantif/">previous blog post</a> with the PyTorch version and study how it scales.</p>
+
+<p>All the codes presented in this blog post are available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a></p>
+
+<h1 id="short-reminder">Short Reminder</h1>
+
+<p>In this part, I quickly remind how to build an optimal quantizer using the Monte-Carlo simulation-based Lloyd procedure with a focus on the $1$-dimensional case. To get more background on the notations and the theory, do not hesitate to check-out my previous blog articles on <a href="/2022/02/13/StochasticMethodsForOptimQuantif/">Stochastic</a> and <a href="/2022/06/21/DeterministicMethodsForOptimQuantifUnivariates/">Deterministic</a> methods for building optimal quantizers.</p>
+
+<h3 id="voronoï-quantization-in-dimension-1">Voronoï Quantization in dimension 1</h3>
+
+<p>Given a quantizer of size N: \(\Gamma_N = \big\{ x_{1}^{N}, \dots , x_{N}^{N} \big\}\) where $x_i^{N}$ are the centroids. Keeping in mind that we are in the $1$-dimensional, if we consider that the centroids $(x_i^{N})_i$ are ordered: \(x_1^{N} &lt; x_2^{N} &lt; \cdots &lt; x_{N-1}^{N} &lt; x_{N}^{N}\), then the Voronoï cells $C_i (\Gamma_N)$ are intervals in $\mathbb{R}$ and are defined by</p>
+
+\[C_i ( \Gamma_N ) =
+    \left\{ \begin{aligned}
+        &amp; \big( x_{i - 1/2}^N , x_{i + 1/2}^N \big] &amp;\qquad i = 1, \dots, N-1 \\
+        &amp; \big( x_{i - 1/2}^N , x_{i + 1/2}^N \big) &amp; i = N
+    \end{aligned} \right.\]
+
+<p>where the vertices $x_{i-1/2}^N$ are defined by</p>
+
+\[\forall i = 2, \dots, N, \qquad x_{i-1/2}^N := \frac{x_{i-1}^N + x_i^N}{2}\]
+
+<p>and</p>
+
+\[x_{1/2}^N := \textrm{inf} (\textrm{supp} (\mathbb{P}_{_{X}})) \, \textrm{ and } \, x_{N+1/2}^N := \textrm{sup} (\textrm{supp} (\mathbb{P}_{_{X}})).\]
+
+<p>Now, let $X$ be a random variable, a <strong>Voronoï quantization</strong> of $X$ by $\Gamma_{N}$, $\widehat X^N$, is defined as nearest neighbor projection of $X$ onto $\Gamma_{N}$ associated to a Voronoï partition $\big( C_{i} (\Gamma_{N}) \big)_{i =1, \dots, N}$ for the euclidean norm</p>
+
+\[\widehat X^N := \textrm{Proj}_{\Gamma_{N}} (X) = \sum_{i = 1}^N x_i^N \mathbb{1}_{X \in C_{i} (\Gamma_N) }\]
+
+<p>and its associated <strong>probabilities</strong>, also called weights, are given by</p>
+
+\[\mathbb{P} \big( \widehat X^N = x_i^N \big) = \mathbb{P}_{_{X}} \big( C_{i} (\Gamma_N) \big) = \mathbb{P} \big( X \in C_{i} (\Gamma_N) \big).\]
+
+<h3 id="optimal-quantization">Optimal quantization</h3>
+
+<p>In order to build an optimal quantizer of $X$, we are looking for the best approximation of $X$ in the sense that we want to find the quantizer $\widehat X^N$ which is the \(\arg \min\) of the quadratic distortion function at level $N$ induced by an $N$-tuple $x := (x_1^N, \dots, x_N^N)$ given by</p>
+
+\[\mathcal{Q}_{2,N} : x \longmapsto \frac{1}{2} \Vert X - \widehat X^N \Vert_{_2}^2 .\]
+
+<h3 id="randomized-lloyd-algorithm">Randomized Lloyd algorithm</h3>
+
+<p>One of the first method deployed in order to build optimal quantizers was the Lloyd method, which is a fixed-point search algorithm. Let $x^{[n]}$ be the quantizer of size $N$ obtained after $n$ iterations, the Randomized Lloyd method with initial condition $x^0$ is defined as follows</p>
+
+\[x^{[n+1]} = \Lambda^M \big( x^{[n]} \big),\]
+
+<p>where</p>
+
+\[\Lambda_i^M ( x ) = \frac{\displaystyle \sum_{m=1}^M \xi_m \mathbb{1}_{ \big\{ \textrm{Proj}_{\Gamma_N} (\xi_m) = x_i^N \big\} } }{\displaystyle \sum_{m=1}^M \mathbb{1}_{ \big\{ \textrm{Proj}_{\Gamma_N} (\xi_m) = x_i^N \big\} } }, % \qquad \mbox{with} \qquad \Gamma_N = \{ x_1^N, \dots, x_N^N \}\]
+
+<p>with $\xi_1, \dots, \xi_M$ be independent copies of $X$.</p>
+
+<h1 id="numpy-implementation">Numpy Implementation</h1>
+
+<p>I detail below a Python code example using numpy, which is an optimized version of the code I detailed in my <a href="/2022/02/13/StochasticMethodsForOptimQuantif/">previous blog post</a> of the randomized Lloyd method. It applies <code class="language-plaintext highlighter-rouge">nbr_iter</code> iterations of the fixed point function in order to build an optimal quantizer of a gaussian random variable where you can select <code class="language-plaintext highlighter-rouge">N</code> the size of the optimal quantizer, <code class="language-plaintext highlighter-rouge">M</code> the number of sample you want to generate.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">trange</span>
+
+<span class="k">def</span> <span class="nf">lloyd_method_dim_1</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nbr_iter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="s">"""
+    Apply `nbr_iter` iterations of the Randomized Lloyd algorithm in order to build an optimal quantizer of size `N`
+    for a Gaussian random variable. This implementation is done using numpy.
+
+    N: number of centroids
+    M: number of samples to generate
+    nbr_iter: number of iterations of fixed point search
+    seed: numpy seed for reproducibility
+
+    Returns: centroids, probabilities associated to each centroid and distortion
+    """</span>
+    <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>  <span class="c1"># Set seed in order to be able to reproduce the results
+</span>
+    <span class="c1"># Draw M samples of gaussian variable
+</span>    <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">M</span><span class="p">)</span>
+
+    <span class="c1"># Initialize the Voronoi Quantizer randomly and sort it
+</span>    <span class="n">centroids</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">centroids</span><span class="p">.</span><span class="n">sort</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">trange</span><span class="p">(</span><span class="n">nbr_iter</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s">'Lloyd method - N: </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s"> - M: </span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s"> - seed: </span><span class="si">{</span><span class="n">seed</span><span class="si">}</span><span class="s"> (numpy)'</span><span class="p">):</span>
+        <span class="c1"># Compute the vertices that separate the centroids
+</span>        <span class="n">vertices</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">centroids</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">centroids</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+        <span class="c1"># Find the index of the centroid that is closest to each sample
+</span>        <span class="n">index_closest_centroid</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">xs</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">vertices</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Compute the new quantization levels as the mean of the samples assigned to each level
+</span>        <span class="n">centroids</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="n">index_closest_centroid</span> <span class="o">==</span> <span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)])</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">centroids</span><span class="p">)):</span>
+            <span class="k">break</span>
+
+    <span class="c1"># Find the index of the centroid that is closest to each sample
+</span>    <span class="n">vertices</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">centroids</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">centroids</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+    <span class="n">index_closest_centroid</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">xs</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">vertices</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># Compute the probability of each centroid
+</span>    <span class="n">probabilities</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">index_closest_centroid</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="c1"># Compute the final distortion between the samples and the quantizer
+</span>    <span class="n">distortion</span> <span class="o">=</span> <span class="p">((</span><span class="n">xs</span> <span class="o">-</span> <span class="n">centroids</span><span class="p">[</span><span class="n">index_closest_centroid</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">).</span><span class="nb">sum</span><span class="p">()</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">M</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">probabilities</span><span class="p">,</span> <span class="n">distortion</span>
+</code></pre></div></div>
+
+<p>The advantage of this optimized version is twofold. First, it drastically reduces the computation time in order to build an optimal quantizer. Second, this new version is written is a more pythonic way compared to the one detailed in my <a href="/2022/02/13/StochasticMethodsForOptimQuantif/">previous article</a>. This simplifies greatly the conversion of this code to PyTorch, as you can see in the next section.</p>
+
+<h1 id="pytorch-implementation">PyTorch Implementation</h1>
+
+<p>Using the numpy code version written above, we can easily implement the Lloyd algorithm in PyTorch. The main difference is the usage of <code class="language-plaintext highlighter-rouge">torch.no_grad()</code> in order to make sure we don’t accumulate the gradients in the tensors and before applying the fixed point iterator, we send the centroids and the samples to the chosen device: <code class="language-plaintext highlighter-rouge">cpu</code> or <code class="language-plaintext highlighter-rouge">cuda</code>.</p>
+
+<p>As above, <code class="language-plaintext highlighter-rouge">lloyd_method_dim_1_pytorch</code> applies <code class="language-plaintext highlighter-rouge">nbr_iter</code> iterations of the fixed point function in order to build an optimal quantizer of a gaussian random variable where you can select <code class="language-plaintext highlighter-rouge">N</code> the size of the optimal quantizer, <code class="language-plaintext highlighter-rouge">M</code> the number of sample you want to generate.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">trange</span>
+
+<span class="k">def</span> <span class="nf">lloyd_method_dim_1_pytorch</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nbr_iter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">device</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="s">"""
+    Apply `nbr_iter` iterations of the Randomized Lloyd algorithm in order to build an optimal quantizer of size `N`
+    for a Gaussian random variable. This implementation is done using torch.
+
+    N: number of centroids
+    M: number of samples to generate
+    nbr_iter: number of iterations of fixed point search
+    device: device on which perform the computations: "cuda" or "cpu"
+    seed: torch seed for reproducibility
+
+    Returns: centroids, probabilities associated to each centroid and distortion
+    """</span>
+    <span class="n">torch</span><span class="p">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>  <span class="c1"># Set seed in order to be able to reproduce the results
+</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="p">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="c1"># Draw M samples of gaussian variable
+</span>        <span class="n">xs</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+        <span class="c1"># xs = torch.tensor(torch.randn(M), dtype=torch.float32)
+</span>        <span class="n">xs</span> <span class="o">=</span> <span class="n">xs</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># send samples to correct device
+</span>
+        <span class="c1"># Initialize the Voronoi Quantizer randomly
+</span>        <span class="n">centroids</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+        <span class="n">centroids</span><span class="p">,</span> <span class="n">index</span> <span class="o">=</span> <span class="n">centroids</span><span class="p">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="n">centroids</span> <span class="o">=</span> <span class="n">centroids</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># send centroids to correct device
+</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">trange</span><span class="p">(</span><span class="n">nbr_iter</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s">'Lloyd method - N: </span><span class="si">{</span><span class="n">N</span><span class="si">}</span><span class="s"> - M: </span><span class="si">{</span><span class="n">M</span><span class="si">}</span><span class="s"> - seed: </span><span class="si">{</span><span class="n">seed</span><span class="si">}</span><span class="s"> (pytorch: </span><span class="si">{</span><span class="n">device</span><span class="si">}</span><span class="s">)'</span><span class="p">):</span>
+            <span class="c1"># Compute the vertices that separate the centroids
+</span>            <span class="n">vertices</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">centroids</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">centroids</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+            <span class="c1"># Find the index of the centroid that is closest to each sample
+</span>            <span class="n">index_closest_centroid</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">xs</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">vertices</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">).</span><span class="nb">long</span><span class="p">()</span>
+
+            <span class="c1"># Compute the new quantization levels as the mean of the samples assigned to each level
+</span>            <span class="n">centroids</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">torch</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">xs</span><span class="p">[</span><span class="n">index_closest_centroid</span> <span class="o">==</span> <span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]).</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">torch</span><span class="p">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">centroids</span><span class="p">).</span><span class="nb">any</span><span class="p">():</span>
+                <span class="k">break</span>
+
+        <span class="c1"># Find the index of the centroid that is closest to each sample
+</span>        <span class="n">vertices</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">centroids</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">centroids</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">index_closest_centroid</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">xs</span><span class="p">[:,</span> <span class="bp">None</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">vertices</span><span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="p">:],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">).</span><span class="nb">long</span><span class="p">()</span>
+        <span class="c1"># Compute the probability of each centroid
+</span>        <span class="n">probabilities</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">index_closest_centroid</span><span class="p">).</span><span class="n">to</span><span class="p">(</span><span class="s">'cpu'</span><span class="p">).</span><span class="n">numpy</span><span class="p">()</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+        <span class="c1"># Compute the final distortion between the samples and the quantizer
+</span>        <span class="n">distortion</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">torch</span><span class="p">.</span><span class="nb">pow</span><span class="p">(</span><span class="n">xs</span> <span class="o">-</span> <span class="n">centroids</span><span class="p">[</span><span class="n">index_closest_centroid</span><span class="p">],</span> <span class="mi">2</span><span class="p">)).</span><span class="n">item</span><span class="p">()</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">M</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">centroids</span><span class="p">.</span><span class="n">to</span><span class="p">(</span><span class="s">'cpu'</span><span class="p">).</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">probabilities</span><span class="p">,</span> <span class="n">distortion</span>
+</code></pre></div></div>
+
+<h1 id="numerical-experiments">Numerical experiments</h1>
+
+<p>Now, I compare the average elapsed time of a fixed-point search iteration of the previous two algorithms. I analyze the computation time of the algorithms for different sample size (<code class="language-plaintext highlighter-rouge">M</code>), grid size (<code class="language-plaintext highlighter-rouge">N</code>) and devices for the PyTorch implementation.
+All the tests were conducted on Google Cloud Platform on an instance <code class="language-plaintext highlighter-rouge">n1-standard-4</code> with 4 cores, 16 Go of RAM and a <code class="language-plaintext highlighter-rouge">NVIDIA T4</code> GPU.</p>
+
+<p>In order to reproduce those results, you can run the script <code class="language-plaintext highlighter-rouge">benchmark/run_lloyd.py</code> in the GitHub repository <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+
+<p>In the left graph, I display, for each method, the average time of an iteration for several values of <code class="language-plaintext highlighter-rouge">N</code>.
+In the right graph, I plot, for each <code class="language-plaintext highlighter-rouge">N</code>, the ratio between the average time for each method and the average time spent by PyTorch implementation using <code class="language-plaintext highlighter-rouge">cuda</code>.</p>
+
+<p>We can notice that when it comes to cpu-only computations, numpy is a better choice than PyTorch. However, when using the GPU, we notice that the PyTorch + cuda version is up to 20 times faster than the numpy implementation. And this is even more noticeable when we increase the sample size.</p>
+
+<center>
+    <figcaption><font size="4">Methods comparison for M=200000</font></figcaption>
+    <img alt="method_comparison_M_200000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_200000.svg" width="370" />
+    <img alt="ratio_comparison_M_200000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_ratio_comparison_M_200000.svg" width="370" />
+</center>
+<p><br /><br /></p>
+
+<center>
+    <figcaption><font size="4">Methods comparison for M=500000</font></figcaption>
+    <img alt="method_comparison_M_500000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_500000.svg" width="370" />
+    <img alt="ratio_comparison_M_500000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_ratio_comparison_M_500000.svg" width="370" />
+</center>
+<p><br /><br /></p>
+
+<center>
+    <figcaption><font size="4">Methods comparison for M=1000000</font></figcaption>
+    <img alt="method_comparison_M_1000000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width="370" />
+    <img alt="ratio_comparison_M_1000000" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_ratio_comparison_M_1000000.svg" width="370" />
+</center>
+
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+  
+
+
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fa fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="https://montest.github.io/tags/#fixed-point-search" class="page__taxonomy-item" rel="tag">Fixed-Point Search</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://montest.github.io/tags/#numerical-probability" class="page__taxonomy-item" rel="tag">Numerical Probability</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://montest.github.io/tags/#optimal-quantization" class="page__taxonomy-item" rel="tag">Optimal Quantization</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://montest.github.io/tags/#optimization" class="page__taxonomy-item" rel="tag">Optimization</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://montest.github.io/tags/#pytorch" class="page__taxonomy-item" rel="tag">PyTorch</a>
+    
+    </span>
+  </p>
+
+
+
+
+      </footer>
+
+      
+
+<section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?text=https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://plus.google.com/share?url=https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+      
+
+
+  <nav class="pagination">
+    
+      <a href="https://montest.github.io/2022/06/21/DeterministicMethodsForOptimQuantifUnivariates/" class="pagination--pager" title="Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
+">Previous</a>
+    
+    
+      <a href="https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/" class="pagination--pager" title="Optimal Quantization with PyTorch - Part 2: Implementation of Stochastic Gradient Descent
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      
+        <h4 class="page__related-title">You May Also Enjoy</h4>
+      
+      <div class="grid__wrapper">
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/" rel="permalink">Optimal Quantization with PyTorch - Part 2: Implementation of Stochastic Gradient Descent
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  16 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-06-12T00:00:00+02:00">June 12, 2023</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_200000.svg" width="350" /> In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. In my previous blog post, the use of PyTorch for Lloyd allowed me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. However, in this article, we do not observe the same behavior, this pytorch implementation is slower than the numpy one. Moreover, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in <code class="language-plaintext highlighter-rouge">torch.optim</code>. Again, this implementation does not speed up the optimization (on the contrary) but it opens the door to other use of the autograd algorithm with other methods (e.g. in the deterministic case).</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2022/06/21/DeterministicMethodsForOptimQuantifUnivariates/" rel="permalink">Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  23 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2022-06-21T00:00:00+02:00">June 21, 2022</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/univariate/distortion_normal_convergence.gif" width="300" /> In my previous blog post, I detailed the methods used to build an optimal Voronoï quantizer of random vectors \(X\) whatever the dimension \(d\). In this post, I will focus on real valued random variables and present faster methods for dimension $1$.</p>
+
+<p>All the code presented in this blog post is available in the following Github repository: <a href="https://github.com/montest/deterministic-methods-optimal-quantization">montest/deterministic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2022/02/13/StochasticMethodsForOptimQuantif/" rel="permalink">Stochastic Numerical Methods for Optimal Voronoï Quantization
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  19 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2022-02-13T00:00:00+01:00">February 13, 2022</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/N_50_random_lloyd_100000.gif" width="300" /> In this post, I remind what is quadratic optimal quantizations. Then, I explain the two algorithms that were first devised in order to build an optimal quantization of a random vector $X$, namely: the fixed-point search called <strong>Lloyd method</strong> and the stochastic gradient descent known as <strong>Competitive Learning Vector Quantization</strong> (CLVQ).</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+
+</div>
+
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+<a href="/sitemap/">Sitemap</a>
+<!-- end custom footer snippets -->
+
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+    
+    
+    
+      <li><a href="http://github.com/montest"><i class="fab fa-github" aria-hidden="true"></i> GitHub</a></li>
+    
+    
+    <li><a href="https://montest.github.io/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Thibaut Montes. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://github.com/academicpages/academicpages.github.io">AcademicPages</a>, a fork of <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    <script src="https://montest.github.io/assets/js/main.min.js"></script>
+
+
+
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5K8K92Y9P6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-5K8K92Y9P6');
+</script>
+
+
+
+
+
+
+
+
+  </body>
+</html>
+

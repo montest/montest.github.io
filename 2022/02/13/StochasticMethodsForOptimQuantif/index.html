@@ -1,0 +1,1003 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+
+
+
+
+<meta charset="utf-8">
+
+
+
+<!-- begin SEO -->
+
+
+
+
+
+
+
+
+
+<title>Stochastic Numerical Methods for Optimal Voronoï Quantization - Thibaut Montes</title>
+
+
+
+
+
+
+
+<meta property="og:locale" content="en-US">
+<meta property="og:site_name" content="Thibaut Montes">
+<meta property="og:title" content="Stochastic Numerical Methods for Optimal Voronoï Quantization">
+
+
+  <link rel="canonical" href="https://montest.github.io/2022/02/13/StochasticMethodsForOptimQuantif/">
+  <meta property="og:url" content="https://montest.github.io/2022/02/13/StochasticMethodsForOptimQuantif/">
+
+
+
+  <meta property="og:description" content=" In this post, I remind what is quadratic optimal quantizations. Then, I explain the two algorithms that were first devised in order to build an optimal quantization of a random vector $X$, namely: the fixed-point search called Lloyd method and the stochastic gradient descent known as Competitive Learning Vector Quantization (CLVQ).All explanations are accompanied by some code examples in Python and is available in the following Github repository: montest/stochastic-methods-optimal-quantization.">
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+  <meta property="og:type" content="article">
+  <meta property="article:published_time" content="2022-02-13T00:00:00+01:00">
+
+
+
+
+
+
+
+
+  <script type="application/ld+json">
+    {
+      "@context" : "http://schema.org",
+      "@type" : "Person",
+      "name" : "Thibaut Montes",
+      "url" : "https://montest.github.io",
+      "sameAs" : null
+    }
+  </script>
+
+
+
+
+
+
+<!-- end SEO -->
+
+
+<link href="https://montest.github.io/feed.xml" type="application/atom+xml" rel="alternate" title="Thibaut Montes Feed">
+
+<!-- http://t.co/dKP3o1e -->
+<meta name="HandheldFriendly" content="True">
+<meta name="MobileOptimized" content="320">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="https://montest.github.io/assets/css/main.css">
+
+<meta http-equiv="cleartype" content="on">
+
+    
+
+<!-- start custom head snippets -->
+
+<link rel="apple-touch-icon" sizes="57x57" href="https://montest.github.io/images/apple-touch-icon-57x57.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="60x60" href="https://montest.github.io/images/apple-touch-icon-60x60.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="72x72" href="https://montest.github.io/images/apple-touch-icon-72x72.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="76x76" href="https://montest.github.io/images/apple-touch-icon-76x76.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="114x114" href="https://montest.github.io/images/apple-touch-icon-114x114.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="120x120" href="https://montest.github.io/images/apple-touch-icon-120x120.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="144x144" href="https://montest.github.io/images/apple-touch-icon-144x144.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="152x152" href="https://montest.github.io/images/apple-touch-icon-152x152.png?v=M44lzPylqQ">
+<link rel="apple-touch-icon" sizes="180x180" href="https://montest.github.io/images/apple-touch-icon-180x180.png?v=M44lzPylqQ">
+<link rel="icon" type="image/png" href="https://montest.github.io/images/optim2d_bokeh.png?v=M44lzPylqQ" sizes="32x32">
+<link rel="icon" type="image/png" href="https://montest.github.io/images/optim2d_bokeh.png?v=M44lzPylqQ" sizes="192x192">
+<link rel="icon" type="image/png" href="https://montest.github.io/images/optim2d_bokeh.png?v=M44lzPylqQ" sizes="96x96">
+<link rel="icon" type="image/png" href="https://montest.github.io/images/optim2d_bokeh.png?v=M44lzPylqQ" sizes="16x16">
+<link rel="manifest" href="https://montest.github.io/images/manifest.json?v=M44lzPylqQ">
+<link rel="mask-icon" href="https://montest.github.io/images/safari-pinned-tab.svg?v=M44lzPylqQ" color="#000000">
+<link rel="shortcut icon" href="/images/optim2d_bokeh.png?v=M44lzPylqQ">
+<meta name="msapplication-TileColor" content="#000000">
+<meta name="msapplication-TileImage" content="https://montest.github.io/images/mstile-144x144.png?v=M44lzPylqQ">
+<meta name="msapplication-config" content="https://montest.github.io/images/browserconfig.xml?v=M44lzPylqQ">
+<meta name="theme-color" content="#ffffff">
+<link rel="stylesheet" href="https://montest.github.io/assets/css/academicons.css"/>
+
+<script type="text/x-mathjax-config"> MathJax.Hub.Config({ TeX: { equationNumbers: { autoNumber: "all" } } }); </script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/latest.js?config=TeX-MML-AM_CHTML' async></script>
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg"><a href="https://montest.github.io/">Thibaut Montes</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/resume/">Resume</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/year-archive/">Blog Posts</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/publications/">Publications</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/talks/">Talks</a></li>
+          
+            
+            <li class="masthead__menu-item"><a href="https://montest.github.io/research/">Research</a></li>
+          
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+    
+
+
+
+
+
+<div id="main" role="main">
+  
+
+
+  <div class="sidebar sticky">
+  
+
+
+
+<div itemscope itemtype="http://schema.org/Person">
+
+  <div class="author__avatar">
+    
+    	<img src="https://montest.github.io/images/me.jpg" class="author__avatar" alt="Thibaut Montes, PhD">
+    
+  </div>
+
+  <div class="author__content">
+    <h3 class="author__name">Thibaut Montes, PhD</h3>
+    <p class="author__bio">Senior Machine Learning Researcher</p>
+  </div>
+
+  <div class="author__urls-wrapper">
+    <button class="btn btn--inverse">Follow</button>
+    <ul class="author__urls social-icons">
+      
+        <li><i class="fa fa-fw fa-map-marker" aria-hidden="true"></i> Talkwalker, Luxembourg</li>
+      
+      
+      
+      
+      
+       
+      
+      
+      
+      
+        <li><a href="https://www.linkedin.com/in/thibaut-montes-194a77a9"><i class="fab fa-linkedin" aria-hidden="true"></i> LinkedIn</a></li>
+      
+      
+      
+      
+      
+      
+        <li><a href="https://github.com/montest"><i class="fab fa-github" aria-hidden="true"></i> Github</a></li>
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+        <li><a href="https://scholar.google.fr/citations?user=o8jICwcAAAAJ&hl=en"><i class="fas fa-graduation-cap"></i> Google Scholar</a></li>
+      
+      
+      
+    </ul>
+  </div>
+</div>
+
+  
+  </div>
+
+
+  <article class="page" itemscope itemtype="http://schema.org/CreativeWork">
+    <meta itemprop="headline" content="Stochastic Numerical Methods for Optimal Voronoï Quantization">
+    <meta itemprop="description" content=" In this post, I remind what is quadratic optimal quantizations. Then, I explain the two algorithms that were first devised in order to build an optimal quantization of a random vector $X$, namely: the fixed-point search called Lloyd method and the stochastic gradient descent known as Competitive Learning Vector Quantization (CLVQ).All explanations are accompanied by some code examples in Python and is available in the following Github repository: montest/stochastic-methods-optimal-quantization.">
+    <meta itemprop="datePublished" content="February 13, 2022">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 class="page__title" itemprop="headline">Stochastic Numerical Methods for Optimal Voronoï Quantization
+</h1>
+          
+            <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  19 minute read
+	
+</p>
+          
+        
+
+        
+          <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2022-02-13T00:00:00+01:00">February 13, 2022</time></p>
+        
+
+
+        
+
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        <h1 class="no_toc" id="table-of-contents">Table of contents</h1>
+
+<ul id="markdown-toc">
+  <li><a href="#introduction" id="markdown-toc-introduction">Introduction</a></li>
+  <li><a href="#voronoï-tesselation" id="markdown-toc-voronoï-tesselation">Voronoï tesselation</a></li>
+  <li><a href="#voronoï-quantization" id="markdown-toc-voronoï-quantization">Voronoï quantization</a></li>
+  <li><a href="#optimal-quantization" id="markdown-toc-optimal-quantization">Optimal quantization</a></li>
+  <li><a href="#how-to-build-an-optimal-quantizer" id="markdown-toc-how-to-build-an-optimal-quantizer">How to build an optimal quantizer?</a>    <ul>
+      <li><a href="#lloyd-method" id="markdown-toc-lloyd-method">Lloyd method</a></li>
+      <li><a href="#competitive-learning-vector-quantization" id="markdown-toc-competitive-learning-vector-quantization">Competitive Learning Vector Quantization</a></li>
+    </ul>
+  </li>
+  <li><a href="#references" id="markdown-toc-references">References</a></li>
+</ul>
+
+<h1 id="introduction">Introduction</h1>
+
+<p>In this post, I describe the two main Monte-Carlo simulation-based procedures used to build an optimal Voronoï quantizer of $X$. <strong>Optimal quantization</strong> was first introduced in <a class="citation" href="#sheppard1897calculation">(Sheppard, 1897)</a>, where the author focused on the optimal quantization of the uniform distribution over unit hypercubes. It was then extended to more general laws motivated by applications to signal transmission in the Bell Laboratory in the 1950s (see <a class="citation" href="#gersho1982special">(Gersho &amp; Gray, 1982)</a>).</p>
+
+<p>Optimal quantization is also linked to an unsupervised learning computational statistical method. Indeed, the <strong>K-means</strong> method, which is a nonparametric automatic classification method consisting, given a set of points and an integer $k$, in dividing the points into $k$ classes (<strong>clusters</strong>), is based on the same algorithm as the Lloyd method used to build an optimal quantizer. The <strong>K-means</strong> problem was formulated by Steinhaus in <a class="citation" href="#steinhaus1956division">(Steinhaus, 1956)</a> and then taken up a few years later by MacQueen in <a class="citation" href="#macqueen1967some">(MacQueen, 1967)</a>.</p>
+
+<p>In the 90s, optimal quantization was first used for numerical integration purposes for the approximation of expectations, see <a class="citation" href="#pages1998space">(Pagès, 1998)</a>, and later used for the approximation of conditional expectations: see <a class="citation" href="#bally2001stochastic">(Bally et al., 2001; Bally &amp; Pagès, 2003; Bally et al., 2005)</a> for optimal stopping problems applied to the pricing of American options, <a class="citation" href="#pages2005optimal">(Pagès &amp; Pham, 2005; Pham et al., 2005)</a> for non-linear filtering problems, (missing reference) for stochastic control problems, <a class="citation" href="#gobet2005discretization">(Gobet et al., 2005)</a> for discretization and simulation of Zakai and McKean-Vlasov equations and <a class="citation" href="#brandejsky2012numerical">(Brandejsky et al., 2012; De Saporta &amp; Dufour, 2012)</a> in the presence of piecewise deterministic Markov processes (PDMP).</p>
+
+<p>First I remind what are a Voronoï tesselation, a quadratic optimal quantizer and their main properties. Then, I explain the two algorithms that were first devised in order to build an optimal quantization of a random vector $X$. All explanations are accompanied by some code examples in Python.</p>
+
+<p>All the code presented in this blog post is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a></p>
+
+<h1 id="voronoï-tesselation">Voronoï tesselation</h1>
+
+<p>A Voronoï tesselation (or diagram) is a way, given a set of points (also called centroids) in $\mathbb{R}^d$, to divide / partition a space into regions or cells. For each cell, all the points in it are closer to the centroid associated to the cell than any other centroid.</p>
+
+<p>For example, in the figure below, all the points in the top right yellow cell are closer to the centroid (red dot in the middle of the cell) than to any other centroid in the green/blue cells. The yellow cell is called the Voronoï cell of the centroid.</p>
+
+<center><img alt="VoronoiQuantizationUniform" src="/images/posts/quantization/voronoi_quantization.png" width="350" /></center>
+
+<p>I give below a more formal definition of a quantizer and its associated Voronoï tesselation.</p>
+
+<h3 class="no_toc" id="definition">Definition</h3>
+
+<p>Let \(\Gamma_N = \big\{ x_1^N, \dots , x_N^N \big\} \subset \mathbb{R}^d\) be a subset of size $N$, called <strong>$N$-quantizer</strong>. $x_i^N$ is a centroid (red dot in the above figure).</p>
+
+<p>A Borel partition $\big( C_i (\Gamma_N) \big)_{i =1, \dots, N}$ of $\mathbb{R}^d$ is a Voronoï partition of $\mathbb{R}^d$ induced by the $N$-quantizer $\Gamma_N$ if, for every $i \in { 1, \dots , N }$,</p>
+
+\[C_i (\Gamma_N) \subset \big\{ \xi \in \mathbb{R}^d, \vert \xi - x_i^N \vert \leq \min_{j \neq i }\vert \xi - x_j^N \vert \big\}.\]
+
+<p>The Borel sets $C_i (\Gamma_N)$ are called <strong>Voronoï cells</strong> of the partition induced by $\Gamma_N$.</p>
+
+<p>For example, for a list of centroid <code class="language-plaintext highlighter-rouge">centroids</code> ( \(\Gamma_N\)) and a given point <code class="language-plaintext highlighter-rouge">p</code>, the closest centroid to <code class="language-plaintext highlighter-rouge">p</code> can be find using the following method that returns the index <code class="language-plaintext highlighter-rouge">i</code> of the closest centroid and the distance between this centroid <code class="language-plaintext highlighter-rouge">x_i</code> and <code class="language-plaintext highlighter-rouge">p</code>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="n">Point</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span>
+
+<span class="k">def</span> <span class="nf">find_closest_centroid</span><span class="p">(</span><span class="n">centroids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Point</span><span class="p">],</span> <span class="n">p</span><span class="p">:</span> <span class="n">Point</span><span class="p">):</span>
+    <span class="n">index_closest_centroid</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">min_dist</span> <span class="o">=</span> <span class="n">sys</span><span class="p">.</span><span class="n">float_info</span><span class="p">.</span><span class="nb">max</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x_i</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">centroids</span><span class="p">):</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linalg</span><span class="p">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x_i</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="n">min_dist</span><span class="p">:</span>
+            <span class="n">index_closest_centroid</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="n">min_dist</span> <span class="o">=</span> <span class="n">dist</span>
+    <span class="k">return</span> <span class="n">index_closest_centroid</span><span class="p">,</span> <span class="n">min_dist</span>
+</code></pre></div></div>
+
+<h1 id="voronoï-quantization">Voronoï quantization</h1>
+
+<p>Now, going back to our initial problem: let $X$ be an $\mathbb{R}^d$-valued random vector with distribution $\mu = P_{X}$ and $\vert \cdot \vert$ be the euclidean norm in $\mathbb{R}^d$.</p>
+
+<p>In simple terms, an optimal quantization of a random vector $X$ is the best approximation of $X$ by a discrete random vector $\widehat X^N$ with cardinality at most $N$.</p>
+
+<p>In the following figure, I display 2 possible quantizations of size $100$ of a standard gaussian random vector $X$ of dimension 2. The red dots represents the possible values (also called centroids) of the discrete random vector and the color of each cell represents the probability associated to each value. The figure on the left is a random quantization of $X$ while the figure on the right shows a quadratic optimal quantization of $X$.</p>
+
+<center>
+<img alt="GaussianQuantif2D_noopt" src="/images/posts/quantization/noopt_quantization_gaussian2d_100.png" width="350" />
+<img alt="GaussianQuantif2D_opt" src="/images/posts/quantization/opt_quantization_gaussian2d_100.png" width="350" />
+</center>
+<p><br /></p>
+
+<p>Now, let us be a bit more precise and give some definitions of the main notations use in this post.</p>
+
+<h3 class="no_toc" id="definition-1">Definition</h3>
+
+<p>A <strong>Voronoï quantization</strong> of $X$ by $\Gamma_N$, $\widehat X^N$, is defined as nearest neighbor projection of $X$ onto $\Gamma_N$ associated to a Voronoï partition $\big( C_i (\Gamma_N) \big)_{i =1, \dots, N}$ for the euclidean norm</p>
+
+\[\widehat X^N := \textrm{Proj}_{\Gamma_N} (X) = \sum_{i = 1}^N x_i^N \mathbb{1}_{X \in C_i (\Gamma_N) }\]
+
+<p>and its associated <strong>probabilities</strong>, also called weights, are given by</p>
+
+\[\mathbb{P} \big( \widehat X^N = x_i^N \big) = \mathbb{P}_{_{X}} \big( C_i (\Gamma_N) \big) = \mathbb{P} \big( X \in C_i (\Gamma_N) \big).\]
+
+<h1 id="optimal-quantization">Optimal quantization</h1>
+
+<p>Now, we can define what an optimal quantization of $X$ is: we are looking for the best approximation of $X$ in the sense that we want to minimize the distance between $X$ and $\widehat X^N$. This distance is measured by the standard $L^2$ norm, denoted $\Vert X - \widehat X^N \Vert_{_2}$, and is called the mean quantization error. But, more often, the quadratic distortion defined as half of the square of the mean quantization error is used.</p>
+
+<h3 class="no_toc" id="definition-2">Definition</h3>
+
+<p>The quadratic distortion function at level $N$ induced by an $N$-tuple $x := (x_1^N, \dots, x_N^N) $ is given by</p>
+
+\[\mathcal{Q}_{2,N} : x \longmapsto \frac{1}{2} \mathbb{E} \Big[ \min_{i = 1, \dots, N} \vert X - x_i^N \vert^2 \Big] = \frac{1}{2} \mathbb{E} \Big[ \textrm{dist} (X, \Gamma_N )^2 \Big] = \frac{1}{2} \Vert X - \widehat X^N \Vert_{_2}^2 .\]
+
+<p>Of course, the above result can be extended to the $L^p$ case by considering the $L^p$-mean quantization error in place of the quadratic one.</p>
+
+<p>Thus, we are looking for quantizers $\widehat X^N$ taking value in grids $\Gamma_N$ of size $N$ which minimize the quadratic distortion</p>
+
+\[\min_{\Gamma_N \subset \mathbb{R}^d, \vert \Gamma_N \vert \leq N } \Vert X - \widehat X^N \Vert_{_2}^2.\]
+
+<p>Classical theoretical results on optimal quantizer can be found in <a class="citation" href="#graf2000foundations">(Graf &amp; Luschgy, 2000; Pagès, 2018)</a>. Check those books if you are interested in results on existence and uniqueness of optimal quantizers or if you want further details on the asymptotic behavior of the distortion (such as Zador’s Theorem).</p>
+
+<h1 id="how-to-build-an-optimal-quantizer">How to build an optimal quantizer?</h1>
+
+<p>In this part, I will focus on how to build an optimal quadratic quantizer or, equivalently, find a solution to the following minimization problem</p>
+
+\[\textrm{arg min}_{(\mathbb{R}^d)^N} \mathcal{Q}_{2,N}.\]
+
+<p>For that, let’s differentiate the distortion function \(\mathcal{Q}_{2,N}\). The gradient \(\nabla \mathcal{Q}_{2,N}\) is given by</p>
+
+\[\nabla \mathcal{Q}_{2,N} (x) = \bigg[ \int_{C_i (\Gamma_N)} (x_i^N - \xi ) \mathbb{P}_{_{X}} (d \xi) \bigg]_{i = 1, \dots, N } = \Big[ \mathbb{E}\big[ \mathbb{1}_{X \in C_i (\Gamma_N)} ( x_i^N - X ) \big] \Big]_{i = 1, \dots, N }.\]
+
+<p>The latter expression is useful for numerical methods based on deterministic procedures while the former featuring a local gradient is handy when we work with stochastic algorithms, which is the case in this post.</p>
+
+<p>Two main stochastic algorithms exist for building an optimal quantizer in \(\mathbb{R}^d\). The first is a fixed-point search, called Lloyd method, see <a class="citation" href="#lloyd1982least">(Lloyd, 1982; Pagès &amp; Printems, 2003)</a> or <strong>K-means</strong> in the case of unsupervised learning and the second is a stochastic gradient descent, called Competitive Learning Vector Quantization (CLVQ) or also Kohonen algorithm see <a class="citation" href="#pages1998space">(Pagès, 1998; Fort &amp; Pages, 1995)</a>.</p>
+
+<h2 id="lloyd-method">Lloyd method</h2>
+
+<p>Starting from the previous equation, when we search a zero of the gradient, we derive a fixed-point problem. Let \(\Lambda_i : \mathbb{R}^N \mapsto \mathbb{R}\) defined by</p>
+
+\[\Lambda_i (x) = \frac{\mathbb{E}\big[ X \mathbb{1}_{ X \in C_i (\Gamma_N)} \big]}{\mathbb{P} \big( X \in C_i (\Gamma_N) \big)}\]
+
+<p>then</p>
+
+\[\nabla \mathcal{Q}_{2,N} (x) = 0 \quad \iff \quad \forall i = 1, \dots, N  \qquad x_i = \Lambda_i ( x ).\]
+
+<p>Hence, from this equality, we deduce a fixed-point search algorithm. This method, known as the <strong>Lloyd method</strong>, was first devised by Lloyd in <a class="citation" href="#lloyd1982least">(Lloyd, 1982)</a>. Let $x^{[n]}$ be the quantizer of size $N$ obtained after $n$ iterations, the Lloyd method with initial condition $x^0$ is defined as follows</p>
+
+\[x^{[n+1]} = \Lambda \big( x^{[n]} \big).\]
+
+<p>In our setup, in absence of deterministic methods for computing the expectations, they will be approximated using Monte-Carlo simulation. Let \(\xi_1, \dots, \xi_M\) be independent copies of \(X\), the stochastic version of \(\Lambda_i\)  is defined by</p>
+
+\[\Lambda_i^M ( x ) = \frac{\displaystyle \sum_{m=1}^M \xi_m \mathbb{1}_{ \big\{ \textrm{Proj}_{\Gamma_N} (\xi_m) = x_i^N \big\} } }{\displaystyle \sum_{m=1}^M \mathbb{1}_{ \big\{ \textrm{Proj}_{\Gamma_N} (\xi_m) = x_i^N \big\} } }. % \qquad \mbox{with} \qquad \Gamma_N = \{ x_1^N, \dots, x_N^N \}\]
+
+<p>Hence, the $n+1$ iteration of the Randomized Lloyd method is given by</p>
+
+\[x^{[n+1]} = \Lambda^M \big( x^{[n]} \big).\]
+
+<p>During the optimization of the quantizer it is possible to compute the weight \(p_i^N\) and the local distortion \(q_i^N\) associated to a centroid defined by</p>
+
+\[p_i^N = \mathbb{P} \big( X \in C_i (\Gamma_N) \big) \quad \mbox{ and } \quad q_i^N = \mathbb{E}\big[ (X - x_i^N)^2 \mathbb{1}_{X \in C_i (\Gamma_N)} \big].\]
+
+<p>I give below a Python code example for the Randomized Lloyd method that takes as input the quantizer $x^{[n]}$ and $M$ samples $(\xi_m)_{m = 1, \dots, M}$ of $X$ and returns $x^{[n+1]}$, the weights and the local-distortion approximated using Monte-Carlo.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+<span class="k">def</span> <span class="nf">fixed_point_iteration</span><span class="p">(</span><span class="n">centroids</span><span class="p">,</span> <span class="n">xs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Point</span><span class="p">]):</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">centroids</span><span class="p">)</span>  <span class="c1"># Size of the quantizer
+</span>    <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>  <span class="c1"># Number of samples
+</span>
+    <span class="c1"># Initialization step
+</span>    <span class="n">local_mean</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">local_count</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">local_dist</span> <span class="o">=</span> <span class="mf">0.</span>
+
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xs</span><span class="p">:</span>
+        <span class="c1"># find the centroid which is the closest to sample x
+</span>        <span class="n">index</span><span class="p">,</span> <span class="n">l2_dist</span> <span class="o">=</span> <span class="n">find_closest_centroid</span><span class="p">(</span><span class="n">centroids</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># Compute local mean, proba and distortion
+</span>        <span class="n">local_mean</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_mean</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">+</span> <span class="n">x</span>
+        <span class="n">local_dist</span> <span class="o">+=</span> <span class="n">l2_dist</span> <span class="o">**</span> <span class="mi">2</span>  <span class="c1"># Computing distortion
+</span>        <span class="n">local_count</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># Count number of samples falling in cell 'index'
+</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">centroids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_mean</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">local_count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">local_count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">centroids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="n">probas</span> <span class="o">=</span> <span class="n">local_count</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="n">distortion</span> <span class="o">=</span> <span class="n">local_dist</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">M</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">probas</span><span class="p">,</span> <span class="n">distortion</span>
+</code></pre></div></div>
+
+<p>Then, using <code class="language-plaintext highlighter-rouge">fixed_point_iteration</code> and starting from a initial guess $x^0$ of size $N$, we can build an optimal quantizer of a random vector $X$ as long as we have access to a random generator of $X$.</p>
+
+<p>Here is a small code example for building an optimal quantizer of a gaussian random vector in dimension 2 where you can select <code class="language-plaintext highlighter-rouge">N</code> the size of the optimal quantizer, <code class="language-plaintext highlighter-rouge">M</code> the number of sample you want to generate and <code class="language-plaintext highlighter-rouge">nbr_iter</code> the number of fixed-point iterations you want to do using <code class="language-plaintext highlighter-rouge">M</code> samples each time.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">trange</span>
+
+<span class="k">def</span> <span class="nf">lloyd_method</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">M</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nbr_iter</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">centroids</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">N</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>  <span class="c1"># Initialize the Voronoi Quantizer
+</span>
+    <span class="k">with</span> <span class="n">trange</span><span class="p">(</span><span class="n">nbr_iter</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">'Lloyd method'</span><span class="p">)</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">t</span><span class="p">:</span>
+
+            <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">M</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>  <span class="c1"># Draw M samples of gaussian vectors
+</span>
+            <span class="n">centroids</span><span class="p">,</span> <span class="n">probas</span><span class="p">,</span> <span class="n">distortion</span> <span class="o">=</span> <span class="n">fixed_point_iteration</span><span class="p">(</span><span class="n">centroids</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>  <span class="c1"># Apply fixed-point search iteration
+</span>            <span class="n">t</span><span class="p">.</span><span class="n">set_postfix</span><span class="p">(</span><span class="n">distortion</span><span class="o">=</span><span class="n">distortion</span><span class="p">)</span>
+
+            <span class="c1"># This is only useful when plotting the results
+</span>            <span class="n">save_results</span><span class="p">(</span><span class="n">centroids</span><span class="p">,</span> <span class="n">probas</span><span class="p">,</span> <span class="n">distortion</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">'lloyd'</span><span class="p">)</span>
+
+    <span class="n">make_gif</span><span class="p">(</span><span class="n">get_directory</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">'lloyd'</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">probas</span><span class="p">,</span> <span class="n">distortion</span>
+</code></pre></div></div>
+
+<p>I display below some examples of 100 steps of the Lloyd method applied for a the quantization of size $N$ of the Gaussian Random vector in dimension 2 for different values of $M$. On the left, you can see the 100 iterations of the $N$-quantizer and on the right the distortion computed during the fixed-point iteration.</p>
+
+<details open="">
+    <summary>
+        <span style="color:#66CCFF;font-weight:bold">
+            100 steps of the randomized lloyd method with N=50 and M=5000
+        </span>
+    </summary>
+    <center>
+        <img alt="N_50_random_lloyd_5000" src="/images/posts/quantization/N_50_random_lloyd_5000.gif" width="350" />
+        <img alt="distortion_N_50_random_lloyd_5000" src="/images/posts/quantization/distortion_N_50_random_lloyd_5000.svg" width="400" />
+    </center>
+</details>
+
+<details>
+    <summary>
+        <span style="color:#66CCFF;font-weight:bold">
+            100 steps of the randomized lloyd method with N=50 and M=10000 (Click to expand)
+        </span>
+    </summary>
+    <center>
+        <img alt="N_50_random_lloyd_10000" src="/images/posts/quantization/N_50_random_lloyd_10000.gif" width="350" />
+        <img alt="distortion_N_50_random_lloyd_10000" src="/images/posts/quantization/distortion_N_50_random_lloyd_10000.svg" width="400" />
+    </center>
+</details>
+
+<details>
+    <summary>
+        <span style="color:#66CCFF;font-weight:bold">
+            100 steps of the randomized lloyd method with N=50 and M=20000 (Click to expand)
+        </span>
+    </summary>
+    <center>
+        <img alt="N_50_random_lloyd_20000" src="/images/posts/quantization/N_50_random_lloyd_20000.gif" width="350" />
+        <img alt="distortion_N_50_random_lloyd_20000" src="/images/posts/quantization/distortion_N_50_random_lloyd_20000.svg" width="400" />
+    </center>
+</details>
+
+<details>
+    <summary>
+        <span style="color:#66CCFF;font-weight:bold">
+            100 steps of the randomized lloyd method with N=50 and M=50000 (Click to expand)
+        </span>
+    </summary>
+    <center>
+        <img alt="N_50_random_lloyd_50000" src="/images/posts/quantization/N_50_random_lloyd_50000.gif" width="350" />
+        <img alt="distortion_N_50_random_lloyd_50000" src="/images/posts/quantization/distortion_N_50_random_lloyd_50000.svg" width="400" />
+    </center>
+</details>
+
+<details>
+    <summary>
+        <span style="color:#66CCFF;font-weight:bold">
+            100 steps of the randomized lloyd method with N=50 and M=100000 (Click to expand)
+        </span>
+    </summary>
+    <center>
+        <img alt="N_50_random_lloyd_100000" src="/images/posts/quantization/N_50_random_lloyd_100000.gif" width="350" />
+        <img alt="distortion_N_50_random_lloyd_100000" src="/images/posts/quantization/distortion_N_50_random_lloyd_100000.svg" width="400" />
+    </center>
+</details>
+
+<h3 class="no_toc" id="remark">Remark</h3>
+
+<p>In the previous code snippet, I use new random numbers, independent copies of $X$, for each batch of size $M$. However, it is also possible to generate only once a set of size $M$ of independent copies of $X$ and then in the loop that iterates <code class="language-plaintext highlighter-rouge">nbr_iter</code> times and use them for every batch, as suggested in subsection 6.3.5 of <a class="citation" href="#pages2018numerical">(Pagès, 2018)</a>. This amounts to consider the $M$-sample of the distribution of $X$ as the distribution to be quantized. This is stricly equivalent as using the <strong>K-means</strong> method for clustering the dataset of size $M$ into $N$ clusters.</p>
+
+<h2 id="competitive-learning-vector-quantization">Competitive Learning Vector Quantization</h2>
+
+<p>The second algorithm is a stochastic gradient descent called Competitive Learning Vector Quantization (CLVQ) algorithm, where we use a gradient descent in order to find the grid that minimize the distortion. Since the gradient cannot be computed deterministically, the idea is to replace it by a stochastic version. Let $\xi_1, \dots, \xi_n, \dots$ a sequence of independent copies of $X$, the $n+1$ iterate of the CLVQ algorithm is given by</p>
+
+\[x^{[n+1]} = x^{[n]} - \gamma_{n+1} \nabla \textit{q}_{2,N} (x^{[n]}, \xi_{n+1})\]
+
+<p>with</p>
+
+\[\nabla \textit{q}_{2,N} (x^{[n]}, \xi_{n+1}) = \Big( \mathbb{1}_{\xi_{n+1} \in C_i (\Gamma_N)} ( x_i^{[n]} - \xi_{n+1} ) \Big)_{1 \leq i \leq N}\]
+
+<p>For the choice on the learning rate I refer to the section 6.3.5 in <a class="citation" href="#pages2018numerical">(Pagès, 2018)</a>. Below, you can find a method that returns a learning rate $\gamma_{n+1}$ for a given centroid size <code class="language-plaintext highlighter-rouge">N</code> and a step <code class="language-plaintext highlighter-rouge">n</code>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+<span class="k">def</span> <span class="nf">lr</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">N</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">pi</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="n">N</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mf">1.</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>Again, during the optimization the weights $p_i^N$ and the local distortions \(q_i^N\) associated to the centroids can be computed. I detail below a Python method that applies <code class="language-plaintext highlighter-rouge">M</code> gradient-descent steps of the CLVQ algorithm starting from the <code class="language-plaintext highlighter-rouge">init_n</code> iterate $x^{[\textrm{init}_n]}$</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">apply_M_gradient_descend_steps</span><span class="p">(</span><span class="n">centroids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Point</span><span class="p">],</span> <span class="n">xs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Point</span><span class="p">],</span> <span class="n">probas</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">distortion</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">init_n</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">centroids</span><span class="p">)</span>  <span class="c1"># Size of the quantizer
+</span>
+    <span class="c1"># M steps of the Stochastic Gradient Descent
+</span>    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">xs</span><span class="p">):</span>
+        <span class="n">gamma_n</span> <span class="o">=</span> <span class="n">lr</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">init_n</span><span class="o">+</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="c1"># find the centroid which is the closest to sample x
+</span>        <span class="n">index</span><span class="p">,</span> <span class="n">l2_dist</span> <span class="o">=</span> <span class="n">find_closest_centroid</span><span class="p">(</span><span class="n">centroids</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># Update the closest centroid using the local gradient
+</span>        <span class="n">centroids</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">centroids</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">-</span> <span class="n">gamma_n</span> <span class="o">*</span> <span class="p">(</span><span class="n">centroids</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># Update the distortion using gamma_n
+</span>        <span class="n">distortion</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">gamma_n</span><span class="p">)</span> <span class="o">*</span> <span class="n">distortion</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">gamma_n</span> <span class="o">*</span> <span class="n">l2_dist</span> <span class="o">**</span> <span class="mi">2</span>
+
+        <span class="c1"># Update counter used for computing the probabilities
+</span>        <span class="n">probas</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">gamma_n</span><span class="p">)</span> <span class="o">*</span> <span class="n">probas</span>
+        <span class="n">probas</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">+=</span> <span class="n">gamma_n</span>
+
+    <span class="k">return</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">probas</span><span class="p">,</span> <span class="n">distortion</span>
+</code></pre></div></div>
+
+<p>Hence, starting from a random quantizer of size $N$, the following algorithm will apply <code class="language-plaintext highlighter-rouge">n</code> gradient-descent steps of the CLVQ algorithm while ploting the approximated distortion every <code class="language-plaintext highlighter-rouge">M</code> steps.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">trange</span>
+
+<span class="k">def</span> <span class="nf">clvq_method</span><span class="p">(</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">nbr_iter</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span> <span class="o">/</span> <span class="n">nbr_iter</span><span class="p">)</span>
+
+    <span class="c1"># Initialization step
+</span>    <span class="n">centroids</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">N</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">probas</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">distortion</span> <span class="o">=</span> <span class="mf">0.</span>
+
+    <span class="k">with</span> <span class="n">trange</span><span class="p">(</span><span class="n">nbr_iter</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s">'CLVQ method'</span><span class="p">)</span> <span class="k">as</span> <span class="n">t</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">t</span><span class="p">:</span>
+            <span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">[</span><span class="n">M</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>  <span class="c1"># Draw M samples of gaussian vectors
+</span>
+            <span class="n">centroids</span><span class="p">,</span> <span class="n">probas</span><span class="p">,</span> <span class="n">distortion</span> <span class="o">=</span> <span class="n">apply_M_gradient_descend_steps</span><span class="p">(</span><span class="n">centroids</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">probas</span><span class="p">,</span> <span class="n">distortion</span><span class="p">,</span> <span class="n">init_n</span><span class="o">=</span><span class="n">step</span><span class="o">*</span><span class="n">M</span><span class="p">)</span>
+            <span class="n">t</span><span class="p">.</span><span class="n">set_postfix</span><span class="p">(</span><span class="n">distortion</span><span class="o">=</span><span class="n">distortion</span><span class="p">,</span> <span class="n">nbr_gradient_iter</span><span class="o">=</span><span class="p">(</span><span class="n">step</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">M</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">centroids</span><span class="p">,</span> <span class="n">probas</span><span class="p">,</span> <span class="n">distortion</span>
+</code></pre></div></div>
+
+<p>I display below some examples of the CLVQ algorithm applied for a the quantization of size $N$ of the Gaussian Random vector in dimension 2 for different values of $n$ where a plot is made every $n/100$ gradient descent steps. On the left, you can see the 100 iterations of the $N$-quantizer and on the right the distortion.</p>
+
+<details open="">
+    <summary>
+        <span style="color:#66CCFF;font-weight:bold">
+            100 steps of the CLVQ algorithm with N=50 and n=500000
+        </span>
+    </summary>
+    <center>
+        <img alt="N_50_random_clvq_5000" src="/images/posts/quantization/N_50_random_clvq_5000.gif" width="350" />
+        <img alt="distortion_N_50_random_clvq_5000" src="/images/posts/quantization/distortion_N_50_random_clvq_5000.svg" width="400" />
+    </center>
+</details>
+
+<details>
+    <summary>
+        <span style="color:#66CCFF;font-weight:bold">
+            100 steps of the CLVQ algorithm with N=50 and n=1000000 (Click to expand)
+        </span>
+    </summary>
+    <center>
+        <img alt="N_50_random_clvq_10000" src="/images/posts/quantization/N_50_random_clvq_10000.gif" width="350" />
+        <img alt="distortion_N_50_random_clvq_10000" src="/images/posts/quantization/distortion_N_50_random_clvq_10000.svg" width="400" />
+    </center>
+</details>
+
+<details>
+    <summary>
+        <span style="color:#66CCFF;font-weight:bold">
+            100 steps of the CLVQ algorithm with N=50 and n=2000000 (Click to expand)
+        </span>
+    </summary>
+    <center>
+        <img alt="N_50_random_clvq_20000" src="/images/posts/quantization/N_50_random_clvq_20000.gif" width="350" />
+        <img alt="distortion_N_50_random_clvq_20000" src="/images/posts/quantization/distortion_N_50_random_clvq_20000.svg" width="400" />
+    </center>
+</details>
+
+<details>
+    <summary>
+        <span style="color:#66CCFF;font-weight:bold">
+            100 steps of the CLVQ algorithm with N=50 and n=5000000 (Click to expand)
+        </span>
+    </summary>
+    <center>
+        <img alt="N_50_random_clvq_50000" src="/images/posts/quantization/N_50_random_clvq_50000.gif" width="350" />
+        <img alt="distortion_N_50_random_clvq_50000" src="/images/posts/quantization/distortion_N_50_random_clvq_50000.svg" width="400" />
+    </center>
+</details>
+
+<details>
+    <summary>
+        <span style="color:#66CCFF;font-weight:bold">
+            100 steps of the CLVQ algorithm with N=50 and n=10000000 (Click to expand)
+        </span>
+    </summary>
+    <center>
+        <img alt="N_50_random_clvq_100000" src="/images/posts/quantization/N_50_random_clvq_100000.gif" width="350" />
+        <img alt="distortion_N_50_random_clvq_100000" src="/images/posts/quantization/distortion_N_50_random_clvq_100000.svg" width="400" />
+    </center>
+</details>
+
+<h3 class="no_toc" id="remark-1">Remark</h3>
+
+<p>Several developments of the CLVQ algorithm can be considered. For example, I could use the the averaging algorithm of Rupper and Polyak, yielding the averaged quantizer $\widetilde x^{[n+1]}$ defined by</p>
+
+\[\left\{
+\begin{aligned}
+	x^{[n+1]}            &amp; = x^{[n]} - \gamma_{n+1} \nabla \textit{q}_{2,N} (x^{[n]}, \xi_{n+1}) \\
+	\widetilde x^{[n+1]} &amp; = \frac{1}{n+1} \sum_{i=1}^{n+1} x^{[i]}.
+\end{aligned} \right.\]
+
+<p>An other possibility would be to consider a batch version of the stochastic algorithm in order to have a better approximation of the gradient at each step, yielding</p>
+
+\[x^{[n+1]} = x^{[n]} - \gamma_{n+1} \frac{1}{M} \sum_{m=1}^M \nabla \textit{q}_{2,N} (x^{[n]}, \xi_{n+1}^m).\]
+
+<h1 id="references">References</h1>
+
+<ol class="bibliography"><li><span id="sheppard1897calculation">Sheppard, W. F. (1897). On the Calculation of the most Probable Values of Frequency-Constants, for Data arranged according to Equidistant Division of a Scale. <i>Proceedings of the London Mathematical Society</i>, <i>1</i>(1), 353–380. https://doi.org/10.1112/plms/s1-29.1.353</span></li>
+<li><span id="gersho1982special">Gersho, A., &amp; Gray, R. M. (1982). Special issue on Quantization. <i>IEEE Transactions on Information Theory</i>, <i>29</i>.</span></li>
+<li><span id="steinhaus1956division">Steinhaus, H. (1956). Sur la division des corps materiels en parties. <i>Bulletin De l’Académie Polonaise Des Sciences</i>, <i>1</i>(804), 801. https://doi.org/10.1371/journal.pone.0024999</span></li>
+<li><span id="macqueen1967some">MacQueen, J. (1967). Some methods for classification and analysis of multivariate observations. <i>Proceedings of the Fifth Berkeley Symposium on Mathematical Statistics and Probability</i>, <i>1</i>(14), 281–297.</span></li>
+<li><span id="pages1998space">Pagès, G. (1998). A space quantization method for numerical integration. <i>Journal of Computational and Applied Mathematics</i>, <i>89</i>(1), 1–38. https://doi.org/10.1016/S0377-0427(97)00190-8</span></li>
+<li><span id="bally2001stochastic">Bally, V., Pagès, G., &amp; Printems, J. (2001). A Stochastic Quantization Method for Nonlinear Problems. <i>Monte Carlo Methods and Applications</i>, <i>7</i>, 21–34. https://doi.org/10.1515/mcma.2001.7.1-2.21</span></li>
+<li><span id="bally2003quantization">Bally, V., &amp; Pagès, G. (2003). A quantization algorithm for solving multidimensional discrete-time optimal stopping problems. <i>Bernoulli</i>, <i>9</i>(6), 1003–1049. https://doi.org/10.3150/bj/1072215199</span></li>
+<li><span id="printems2005quantization">Bally, V., Pagès, G., &amp; Printems, J. (2005). A quantization tree method for pricing and hedging multi-dimensional American options. <i>Mathematical Finance</i>, <i>15</i>(1), 119–168. https://doi.org/10.1111/j.0960-1627.2005.00213.x</span></li>
+<li><span id="pages2005optimal">Pagès, G., &amp; Pham, H. (2005). Optimal quantization methods for nonlinear filtering with discrete-time observations. <i>Bernoulli</i>, <i>11</i>(5), 893–932. https://doi.org/10.3150/bj/1130077599</span></li>
+<li><span id="pham2005approximation">Pham, H., Runggaldier, W., &amp; Sellami, A. (2005). Approximation by quantization of the filter process and applications to optimal stopping problems under partial observation. <i>Monte Carlo Methods and Applications</i>, <i>11</i>(1), 57–81. https://doi.org/10.1515/1569396054027283</span></li>
+<li><span id="gobet2005discretization">Gobet, E., Pagès, G., Pham, H., &amp; Printems, J. (2005). Discretization and simulation for a class of SPDEs with applications to Zakai and McKean-Vlasov equations. <i>Preprint, LPMA-958, Univ. Paris</i>, <i>6</i>.</span></li>
+<li><span id="brandejsky2012numerical">Brandejsky, A., de Saporta, B., &amp; Dufour, F. (2012). Numerical method for expectations of piecewise deterministic Markov processes. <i>Communications in Applied Mathematics and Computational Science</i>, <i>7</i>(1), 63–104. https://doi.org/10.2140/camcos.2012.7.63</span></li>
+<li><span id="de2012numerical">De Saporta, B., &amp; Dufour, F. (2012). Numerical method for impulse control of piecewise deterministic Markov processes. <i>Automatica</i>, <i>48</i>(5), 779–793. https://doi.org/10.1016/j.automatica.2012.02.031</span></li>
+<li><span id="graf2000foundations">Graf, S., &amp; Luschgy, H. (2000). <i>Foundations of Quantization for Probability Distributions</i>. Springer-Verlag. https://doi.org/10.1007/BFb0103945</span></li>
+<li><span id="pages2018numerical">Pagès, G. (2018). <i>Numerical Probability: An Introduction with Applications to Finance</i>. Springer. https://doi.org/10.1007/978-3-319-90276-0</span></li>
+<li><span id="lloyd1982least">Lloyd, S. (1982). Least squares quantization in PCM. <i>IEEE Transactions on Information Theory</i>, <i>28</i>(2), 129–137.</span></li>
+<li><span id="pages2003optimal">Pagès, G., &amp; Printems, J. (2003). Optimal quadratic quantization for numerics: the Gaussian case. <i>Monte Carlo Methods and Applications</i>, <i>9</i>(2), 135–165.</span></li>
+<li><span id="fort1995convergence">Fort, J.-C., &amp; Pages, G. (1995). On the as convergence of the Kohonen algorithm with a general neighborhood function. <i>The Annals of Applied Probability</i>, 1177–1216.</span></li></ol>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+
+
+  
+
+
+
+
+  
+  
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fa fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      
+      
+      <a href="https://montest.github.io/tags/#fixed-point-search" class="page__taxonomy-item" rel="tag">Fixed-Point Search</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://montest.github.io/tags/#numerical-probability" class="page__taxonomy-item" rel="tag">Numerical Probability</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://montest.github.io/tags/#optimal-quantization" class="page__taxonomy-item" rel="tag">Optimal Quantization</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://montest.github.io/tags/#optimization" class="page__taxonomy-item" rel="tag">Optimization</a><span class="sep">, </span>
+    
+      
+      
+      <a href="https://montest.github.io/tags/#stochastic-gradient-descent" class="page__taxonomy-item" rel="tag">Stochastic Gradient Descent</a>
+    
+    </span>
+  </p>
+
+
+
+
+      </footer>
+
+      
+
+<section class="page__share">
+  
+    <h4 class="page__share-title">Share on</h4>
+  
+
+  <a href="https://twitter.com/intent/tweet?text=https://montest.github.io/2022/02/13/StochasticMethodsForOptimQuantif/" class="btn btn--twitter" title="Share on Twitter"><i class="fa fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https://montest.github.io/2022/02/13/StochasticMethodsForOptimQuantif/" class="btn btn--facebook" title="Share on Facebook"><i class="fa fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://plus.google.com/share?url=https://montest.github.io/2022/02/13/StochasticMethodsForOptimQuantif/" class="btn btn--google-plus" title="Share on Google Plus"><i class="fa fa-fw fa-google-plus" aria-hidden="true"></i><span> Google+</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https://montest.github.io/2022/02/13/StochasticMethodsForOptimQuantif/" class="btn btn--linkedin" title="Share on LinkedIn"><i class="fa fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+      
+
+
+  <nav class="pagination">
+    
+      <a href="#" class="pagination--pager disabled">Previous</a>
+    
+    
+      <a href="https://montest.github.io/2022/06/21/DeterministicMethodsForOptimQuantifUnivariates/" class="pagination--pager" title="Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      
+        <h4 class="page__related-title">You May Also Enjoy</h4>
+      
+      <div class="grid__wrapper">
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2023/06/12/StochasticMethodsForOptimQuantifWithPyTorchPart2/" rel="permalink">Optimal Quantization with PyTorch - Part 2: Implementation of Stochastic Gradient Descent
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  16 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-06-12T00:00:00+02:00">June 12, 2023</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_200000.svg" width="350" /> In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. In my previous blog post, the use of PyTorch for Lloyd allowed me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. However, in this article, we do not observe the same behavior, this pytorch implementation is slower than the numpy one. Moreover, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in <code class="language-plaintext highlighter-rouge">torch.optim</code>. Again, this implementation does not speed up the optimization (on the contrary) but it opens the door to other use of the autograd algorithm with other methods (e.g. in the deterministic case).</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2023/03/16/StochasticMethodsForOptimQuantifWithPyTorchPart1/" rel="permalink">Optimal Quantization with PyTorch - Part 1: Implementation of Stochastic Lloyd Method
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  6 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2023-03-16T00:00:00+01:00">March 16, 2023</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/pytorch/1d/stochastic_lloyd_1d_method_comparison_M_1000000.svg" width="250" /> In this post, I present a PyTorch implementation of the stochastic version of the Lloyd algorithm, aka K-means, in order to build Optimal Quantizers of $X$, a random variable of dimension one. The use of PyTorch allows me perform all the numerical computations on GPU and drastically increase the speed of the algorithm.</p>
+
+<p>All explanations are accompanied by some code examples in Python and is available in the following Github repository: <a href="https://github.com/montest/stochastic-methods-optimal-quantization">montest/stochastic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+        
+          
+
+
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="http://schema.org/CreativeWork">
+    
+
+    <h2 class="archive__item-title" itemprop="headline">
+      
+        <a href="https://montest.github.io/2022/06/21/DeterministicMethodsForOptimQuantifUnivariates/" rel="permalink">Deterministic Numerical Methods for Optimal Voronoï Quantization: The one-dimensional case
+</a>
+      
+    </h2>
+    
+    
+      <p class="page__meta"><i class="fa fa-clock-o" aria-hidden="true"></i> 
+
+
+  
+	  21 minute read
+	
+</p>
+    
+
+        
+         <p class="page__date"><strong><i class="fa fa-fw fa-calendar" aria-hidden="true"></i> Published:</strong> <time datetime="2022-06-21T00:00:00+02:00">June 21, 2022</time></p>
+        
+
+    
+    <p class="archive__item-excerpt" itemprop="description"><p><img align="left" src="/images/posts/quantization/univariate/distortion_normal_convergence.gif" width="300" /> In my previous blog post, I detailed the methods used to build an optimal Voronoï quantizer of random vectors \(X\) whatever the dimension \(d\). In this post, I will focus on real valued random variables and present faster methods for dimension $1$.</p>
+
+<p>All the code presented in this blog post is available in the following Github repository: <a href="https://github.com/montest/deterministic-methods-optimal-quantization">montest/deterministic-methods-optimal-quantization</a>.</p>
+</p>
+    
+    
+    
+
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+
+</div>
+
+
+    <div class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+<a href="/sitemap/">Sitemap</a>
+<!-- end custom footer snippets -->
+
+        
+
+<div class="page__footer-follow">
+  <ul class="social-icons">
+    
+      <li><strong>Follow:</strong></li>
+    
+    
+    
+    
+      <li><a href="http://github.com/montest"><i class="fab fa-github" aria-hidden="true"></i> GitHub</a></li>
+    
+    
+    <li><a href="https://montest.github.io/feed.xml"><i class="fa fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2023 Thibaut Montes. Powered by <a href="http://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://github.com/academicpages/academicpages.github.io">AcademicPages</a>, a fork of <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    <script src="https://montest.github.io/assets/js/main.min.js"></script>
+
+
+
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5K8K92Y9P6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-5K8K92Y9P6');
+</script>
+
+
+
+
+
+
+
+
+  </body>
+</html>
+
