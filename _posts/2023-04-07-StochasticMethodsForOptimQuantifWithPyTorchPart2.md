@@ -3,7 +3,7 @@ title: 'Optimal Quantization with PyTorch - Part 2: Implementation of Stochastic
 collection: blog posts
 excerpt: "
 <img align='left' src='/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_method_comparison_M_1000000.svg' width='250' >
-In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. As seen in [my previous blog post][blog_post_pytorch_lloyd_stochastic], the use of PyTorch allows me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. Moreover, in this article, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in `torch.optim`.
+In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. In [my previous blog post][blog_post_pytorch_lloyd_stochastic], the use of PyTorch allowed me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. However, in this article, we do not observe the same behavior, this pytorch implementation is slower than the numpy one. Moreover, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in `torch.optim`. Again, this implementation does not speed up the optimization (on the contrary) but it opens the door to other use of the autograd algorithm with other methods (e.g. in the deterministic case).
 
 
 All explanations are accompanied by some code examples in Python and is available in the following Github repository: [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization)."
@@ -29,7 +29,7 @@ Table of contents
 
 Introduction
 ======
-In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. As seen in [my previous blog post][blog_post_pytorch_lloyd_stochastic], the use of PyTorch allows me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. Moreover, in this article, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in `torch.optim`. I compare the implementation I made in numpy in a [previous blog post][blog_post_stochastic_methods] with the PyTorch version and study how it scales. Moreover, I explore the use of `autograd` in PyTorch.
+In this post, I present several PyTorch implementations of the Competitive Learning Vector Quantization algorithm (CLVQ) in order to build Optimal Quantizers of $X$, a random variable of dimension one. In [my previous blog post][blog_post_pytorch_lloyd_stochastic], the use of PyTorch allowed me to perform all the numerical computations on GPU and drastically increase the speed of the algorithm. However, in this article, we do not observe the same behavior, this pytorch implementation is slower than the numpy one. Moreover, I also take advantage of the autograd implementation in PyTorch allowing me to make use of all the optimizers in `torch.optim`. Again, this implementation does not speed up the optimization (on the contrary) but it opens the door to other use of the autograd algorithm with other methods (e.g. in the deterministic case). I compare the implementation I made in numpy in a [previous blog post][blog_post_stochastic_methods] with the PyTorch version and study how it scales. Moreover, I explore the use of `autograd` in PyTorch.
 
 All the codes presented in this blog post are available in the following Github repository: [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization)
 
@@ -54,7 +54,7 @@ $$
 
 ### Gradient of the distortion function
 
-In order to find the $$\arg \min$$, we differentiate the distortion function $$\mathcal{Q}_{2,N}$$. The gradient $$\nabla \mathcal{Q}_{2,N}$$ is given by
+The $$\arg \min$$ of the distortion can be found by differentiating the distortion function $$\mathcal{Q}_{2,N}$$. The gradient $$\nabla \mathcal{Q}_{2,N}$$ is given by
 
 $$
     \nabla \mathcal{Q}_{2,N} (x) = \bigg[ \int_{C_i (\Gamma_N)} (x_i^N - \xi ) \mathbb{P}_{_{X}} (d \xi) \bigg]_{i = 1, \dots, N } = \Big[ \mathbb{E}\big[ \mathbb{1}_{X \in C_i (\Gamma_N)} ( x_i^N - X ) \big] \Big]_{i = 1, \dots, N }.
@@ -62,7 +62,7 @@ $$
 
 ### Stochastic Competitive Learning Vector Quantization algorithm
 
-In order to build an optimal, one can use a Stochastic Gradient Descent, also called the CLVQ algorithm, in order to build an optimal quantizer. Let $x^{[n]}$ be the quantizer of size $N$ obtained after $n$ iterations, the Stochastic CLVQ method with initial condition $x^0$ is defined as follows
+Then, using the gradient, one can use a Stochastic Gradient Descent, also called the CLVQ algorithm in order to build an optimal quantizer. Let $x^{[n]}$ be the quantizer of size $N$ obtained after $n$ iterations, the Stochastic CLVQ method with initial condition $x^0$ is defined as follows
 
 $$
 	x^{[n+1]} = x^{[n]} - \gamma_{n+1} \nabla \textit{q}_{2,N} (x^{[n]}, \xi_{n+1})
@@ -118,12 +118,9 @@ def clvq_method_dim_1(N: int, M: int, num_epochs: int, seed: int = 0):
             for step in range(M):
                 # Compute the vertices that separate the centroids
                 vertices = 0.5 * (centroids[:-1] + centroids[1:])
-
                 # Find the index of the centroid that is closest to each sample
                 index_closest_centroid = np.sum(xs[step, None] >= vertices[None, :])
-
                 gamma_n = lr(N, epoch*M + step)
-
                 # Update the closest centroid using the local gradient
                 centroids[index_closest_centroid] = centroids[index_closest_centroid] - gamma_n * (centroids[index_closest_centroid] - xs[step])
 
@@ -131,7 +128,7 @@ def clvq_method_dim_1(N: int, M: int, num_epochs: int, seed: int = 0):
     return centroids, probabilities, distortion
 ```
 
-Compared to the version presented in a previous blog post, I do not resample for each epoch, I reuse the same `M` samples each time. Moreover, the probabilities and the distortion are computed at the end using the following method `get_probabilities_and_distortion` where `centroids` are the centroids and `xs` are the `M` samples.
+Compared to the version presented in a previous blog post, I reuse the same `M` samples each time. and do not resample for each epoch,  Moreover, the probabilities and the distortion are computed at the end using the following method `get_probabilities_and_distortion` where `centroids` are the centroids and `xs` are the `M` samples.
 
 ```python
 import torch
@@ -212,13 +209,10 @@ def clvq_method_dim_1_pytorch(N: int, M: int, num_epochs: int, device: str, seed
                 for step in range(M):
                     # Compute the vertices that separate the centroids
                     vertices = 0.5 * (centroids[:-1] + centroids[1:])
-
                     # Find the index of the centroid that is closest to each sample
                     index_closest_centroid = torch.sum(xs[step, None] >= vertices[None, :]).long()
-
                     gamma_n = 1e-2
                     # gamma_n = lr(N, epoch*M + step)
-
                     # Update the closest centroid using the local gradient
                     centroids[index_closest_centroid] = centroids[index_closest_centroid] - gamma_n * (centroids[index_closest_centroid] - xs[step])
 
@@ -227,13 +221,13 @@ def clvq_method_dim_1_pytorch(N: int, M: int, num_epochs: int, device: str, seed
 ```
 
 ### Remark
-Now that the converted the numpy implementation into PyTorch, we can try to take advantage of another big feature of PyTorch, which is `autograd`. It is described as follow in PyTorch documentation:
+> Now that the converted the numpy implementation into PyTorch, we can try to take advantage of another big feature of PyTorch, which is `autograd`. It is described as follow in PyTorch documentation:
 
 > *PyTorch’s Autograd feature is part of what make PyTorch flexible and fast for building machine learning projects. It allows for the rapid and easy computation of multiple partial derivatives (also referred to as gradients) over a complex computation. This operation is central to backpropagation-based neural network learning.*
 > 
 > *The power of autograd comes from the fact that it traces your computation dynamically at runtime, meaning that if your model has decision branches, or loops whose lengths are not known until runtime, the computation will still be traced correctly, and you’ll get correct gradients to drive learning. This, combined with the fact that your models are built in Python, offers far more flexibility than frameworks that rely on static analysis of a more rigidly-structured model for computing gradients.*
 
-This will allows us to not compute the gradient by hand and most importantly to take advantage of all the optimizers already implemented in `torch.optim` such as SGD with momentum or ADAM. 
+> This will allows us to not compute the gradient by hand and most importantly to take advantage of all the optimizers already implemented in `torch.optim` such as SGD with momentum or ADAM. 
 
 Gradient descent with the use of autograd
 --------
@@ -248,8 +242,9 @@ class Quantizer(nn.Module):
         super(Quantizer, self).__init__()
         centroids = torch.randn(N)
         centroids, index = centroids.sort()
-        self.centroids = nn.Parameter(centroids.clone().detach().requires_grad_(True))
-        self.centroids = self.centroids.to(device)  # send centroids to correct device
+        self.centroids = nn.Parameter(
+            centroids.clone().detach().to(device).requires_grad_(True)
+        )
 ```
 
 Then, we can create an instance of this quantizer and set it in training mode, which allows for the gradients to accumulate.
@@ -320,7 +315,6 @@ def clvq_method_dim_1_pytorch_autograd(N: int, M: int, num_epochs: int, device: 
     with trange(num_epochs, desc=f'CLVQ method - N: {N} - M: {M} - seed: {seed} (pytorch autograd: {device})') as epochs:
         for epoch in epochs:
             for step in range(M):
-                # print(f"Step {step+1}")
                 with torch.no_grad():
                     # Compute the vertices that separate the centroids
                     vertices = 0.5 * (quantizer.centroids[:-1] + quantizer.centroids[1:])
@@ -343,44 +337,57 @@ Numerical experiments
 =======
 
 Now, I compare the average elapsed time of an epoch of the previous three algorithms. I analyze the computation time of the algorithms for different sample size (`M`), grid size (`N`) and devices for the PyTorch implementation.
-All the tests were conducted on Google Cloud Platform on an instance `n1-standard-4` with 4 cores, 16 Go of RAM and a `NVIDIA T4` GPU. 
+All the tests were conducted on Google Colab with 16 Go of RAM and a `NVIDIA T4` GPU. 
 
 
 ### Remark
-When comparing numerical methods for building an optimal quantizer, it's important to note that using the same seed and gradient descent parameters in both the numpy and PyTorch implementations does not result in identical centroids and probabilities. This is due to the fact that Numpy and PyTorch use different random generators, resulting in slightly different initial random samples. In order to replicate the results exactly across all algorithms, it is necessary to use a single random generator for all methods and set the same seed at the beginning of each method.
-
-However, those differences have no impact when benchmarking each method and looking at the average time of an epoch.
-
-In order to reproduce the benchmark's result, you can run the script `benchmark/run_clvq.py` in the GitHub repository [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization).
+> When comparing numerical methods for building an optimal quantizer, it's important to note that using the same seed and gradient descent parameters in both the numpy and PyTorch implementations does not result in identical centroids and probabilities. This is due to the fact that Numpy and PyTorch use different random generators, resulting in slightly different initial random samples. In order to replicate the results exactly across all algorithms, it is necessary to use a single random generator for all methods and set the same seed at the beginning of each method.
+>
+>However, those differences have no impact when benchmarking each method and looking at the average time of an epoch.
 
 
-<!-- In the left graph, I display, for each method, the average time of an iteration for several values of `N`.
-In the right graph, I plot, for each `N`, the ratio between the average time for each method and the average time spent by PyTorch implementation using `cuda`.  -->
+In order to reproduce the benchmark's result, you can use the script `benchmark/run_clvq.py` in the GitHub repository [montest/stochastic-methods-optimal-quantization](https://github.com/montest/stochastic-methods-optimal-quantization).
 
 
-<!-- We can notice that when it comes to cpu-only computations, numpy is a better choice than PyTorch. However, when using the GPU, we notice that the PyTorch + cuda version is up to 20 times faster than the numpy implementation. And this is even more noticeable when we increase the sample size. -->
+For different values of `M`, in the top graph, I display for each method, the average time of an iteration for several values of `N`.
+In the bottom graph, I plot, for each `N`, the ratio between the average time for each method and the average time spent by the numpy implementation running on `cpu`. 
 
 
 <center>
-    <figcaption><font size=4>Methods comparison for M=200000</font></figcaption>
-    <img alt="method_comparison_M_200000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_method_comparison_M_200000.svg" width=370 />
-    <img alt="ratio_comparison_M_200000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_200000.svg" width=370 />
+    <figcaption><font size=4>Methods comparison for M=20000</font></figcaption>
+    <img alt="method_comparison_M_20000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_method_comparison_M_20000.svg" width=700 />
+    <img alt="ratio_comparison_M_20000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_20000.svg" width=700 />
 </center>
 <br/><br/>
  
 <center>
-    <figcaption><font size=4>Methods comparison for M=500000</font></figcaption>
-    <img alt="method_comparison_M_500000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_method_comparison_M_500000.svg" width=370 />
-    <img alt="ratio_comparison_M_500000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_500000.svg" width=370 />
+    <figcaption><font size=4>Methods comparison for M=50000</font></figcaption>
+    <img alt="method_comparison_M_50000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_method_comparison_M_50000.svg" width=700 />
+    <img alt="ratio_comparison_M_50000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_50000.svg" width=700 />
 </center>
 <br/><br/>
 
 <center>
-    <figcaption><font size=4>Methods comparison for M=1000000</font></figcaption>
-    <img alt="method_comparison_M_1000000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_method_comparison_M_1000000.svg" width=370 />
-    <img alt="ratio_comparison_M_1000000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_1000000.svg" width=370 />
+    <figcaption><font size=4>Methods comparison for M=100000</font></figcaption>
+    <img alt="method_comparison_M_100000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_method_comparison_M_100000.svg" width=700 />
+    <img alt="ratio_comparison_M_100000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_100000.svg" width=700 />
 </center>
 
+<center>
+    <figcaption><font size=4>Methods comparison for M=200000</font></figcaption>
+    <img alt="method_comparison_M_200000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_method_comparison_M_200000.svg" width=700 />
+    <img alt="ratio_comparison_M_200000" src="/images/posts/quantization/pytorch/1d/stochastic_clvq_1d_ratio_comparison_M_200000.svg" width=700 />
+</center>
+
+Conclusion
+=======
+
+In the previous graphs, we can notice that the implementation in Pytorch mimicking numpy is a lot slower compared to the one on Numpy (around 4 to 8 times slower on cpu and 10 to 20 times slower on cuda). This is maybe because of the batch size equal to one which does not fully take advantage of Pytorch. Indeed, we apply the gradient descent with one sample at the time. It would be of interest to test with bigger batch size. Moreover, the pytorch implementation allows us to have access to all the optimizers already implemented in Pytorch and choosing one that would speed up the convergence. Moreover, this code implementation in Pytorch is probably not optimal and one can find optimized version of it, lowering the ratios. 
+
+Concerning the Pytorch implementation using autograd, the ratios are even bigger up to 70 times slower when running on cuda and up to 30 on cpu. But those results are to be expected. Indeed, when using autograd, we perform more computations by computing the loss then differentiating with respect to all the centroids. While, when we compute directly the gradient and apply by hand the gradient descent, we compute if directly for the centroid which is the closest to the sample. Hence, again, it would be interesting to study the behavior of the autograd method with bigger batch size (with values $>1$) and see if the automatic differentiation can be of interest. 
+
+To conclude, in this case, the pytorch implementation with autograd is not interesting from on optimization point of view but it opens the door to more possibilities and applications, e.g. in the deterministic case in order to avoid computing the gradient by hand or in higher dimension.
+Hence, **stay tuned for more updates** 😃.
 
 
 [blog_post_pytorch_lloyd_stochastic]: {% post_url 2023-03-16-StochasticMethodsForOptimQuantifWithPyTorchPart1 %}
