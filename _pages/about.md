@@ -9,6 +9,7 @@ redirect_from:
 ---
 
 I am a Quantitative Researcher and Developer at Abu Dhabi Investmennt Authority (ADIA), Abu Dhabi.
+I am part of the Data Curation team and work on NLP related projects.
 
 I successfully defended my Ph.D thesis in Numerical Probability in June 2020. I was under the direction of [Gilles Pagès](https://www.lpsm.paris/dw/doku.php?id=users:pages:index) and [Vincent Lemaire](https://perso.lpsm.paris/~vlemaire/site.html) at the [Laboratoire de Probabilités, Statistique et Modélisation](https://www.lpsm.paris/) and [Jean-Michel Fayolle](https://fr.linkedin.com/in/jean-michel-fayolle-68964930) at [the Independent Calculation Agent](https://www.the-ica.com/), a Fintech whose aim is to efficiently compute risk measures linked to counterparty default.
 
