@@ -13,54 +13,57 @@ redirect_from:
 ## Professional Experience
 <!-- ====== -->
 
-* **Quantitative Researcher and Developer** at Abu Dhabi Investmennt Authority (ADIA), Abu Dhabi, from July 2023. \\
-  I am part of the Data Curation team and work on NLP related projects.
+* **Staff AI Researcher** at Hootsuite (formerly Talkwalker), Luxembourg, August 2026 – present. \\
+  * Design agents and skills, and build an evaluation framework combining deterministic rules and LLM-as-a-judge.
+  * Co-develop the agent harness, including the orchestrator and memory layers.
 
-* **Senior Machine Learning Researcher** at Talkwalker, Luxembourg, May 2021 - June 2023. \\
-  I was using Deep Learning models in order to solve NLP related problems. Here are some examples of my projects:
-    * Training classifiers using pre-trained multilingual transformers models.
-    * Active Learning based training.
-    * Meta-Learning for improving classifiers accuracy.
+* **Quantitative Researcher** at Abu Dhabi Investment Authority (ADIA), Abu Dhabi, July 2023 – July 2026. \\
+  * Delivered features and signals used in live Market Neutral and Directional strategies traded daily in US and EU equity markets.
+  * Co-founded and architected an NLP/LLM research platform for large-scale extraction of trading signals from unstructured financial text.
+  * Designed and implemented sentence-granular pipelines for earnings calls, filings, and other unstructured data (parsing, splitting, labelling, embedding) to generate alpha features and signals for systematic strategies, with emphasis on point-in-time data.
 
-* **Desk Strat** at Deutsche Bank, London, UK, September 2020 - April 2021. \\
-  I was working on the Synthetic Desk's (ETFs and Indices) migration to Kannon (New P&L and Risk tool used by trading).
+* **Senior Machine Learning Researcher** at Talkwalker (now Hootsuite), Luxembourg, May 2021 – June 2023. \\
+  * Owned the full lifecycle of NLP models, from initial research to production deployment, processing up to 10,000 documents per second.
+  * Developed and scaled multilingual Transformer-based pipelines for aspect-based sentiment and emotion extraction from raw social media data.
+  * Improved classifier accuracy in low-data regimes by implementing Active Learning and Meta-Learning research.
+  * Optimized deep learning inference and data filtering logic to ensure high-fidelity signals across massive, unstructured data streams.
 
-* **Quantitative Researcher** at The Independent Calculation Agent, Paris, France, Nov 2016 - February 2020. \\
-  As PhD candidate in collaboration with The ICA, I worked on the following projects:
-    * Optimizing the ICA's analytic library using Optimal Quantization based methods (Pricing of Exotic Options in the interest rate world).
-    * Identifying and *killing* bias in the xVA computation using Multilevel Monte-Carlo methods.
-    * Implementing new regulatory risk measures in the library.
+* **Desk Strat** at Deutsche Bank, London, September 2020 – April 2021. \\
+  * Supported the Synthetic Desk (ETFs and Indices) migration to Kannon, the new P&L and Risk platform used by trading.
+  * Improved PV and Risk computations for ETFs and indices.
 
-* **Intern Quantitative Analyst** at The Independent Calculation Agent, Paris, France, May 2016 – Oct 2016. \\
-  The goal of my internship was to optimize financial products price and risk measures sensitivities computations. I investigated both Malliavin calculus and finite differences methods and concluded the latter offered the best optimization.
-
-* **Research Assistant** at LPSM (former LPMA), under the direction of Daphné Giorgi and Vincent Lemaire, Paris, France, Jun 2015 – Jul 2015. \\
-  I explored short rate models (Vasicek Model) and their numerical simulation using trinomial trees.
-
+* **Research Advisor** at ICA (now Opensee), Paris, May 2016 – March 2020. \\
+  First as an intern, then as a PhD candidate, in collaboration with ICA:
+  * Optimization of the analytic library using Optimal Quantization (pricing of exotic options in the interest rate world).
+  * Identifying and *killing* bias in xVA computation using Multilevel Monte-Carlo methods.
 
 
 ## Education
 <!-- ====== -->
-* **Ph.D CIFRE in Numerical Probability**, Laboratoire de Probabilité, Statistiques et Modélisation (LPSM), Pierre and Marie Curie University (Paris VI), defended the 24th of June 2020.
 
-* **Research Master in Probability and Finance**, Pierre and Marie Curie University (Paris VI), Sep 2014 to Jun 2016.
+* **PhD in Numerical Probability**, Sorbonne University (LPSM), March 2017 – June 2020. \\
+  Supervised by Gilles Pagès and Vincent Lemaire (LPSM) and Jean-Michel Fayolle (ICA).
+  * Research on Optimal Quantization, Multilevel Monte-Carlo, and Stochastic Algorithms, spanning theory and financial applications.
+  * Developed fixed-point and gradient-descent methods for efficient construction of optimal quantizers.
+  * Applied the framework to PRDC Bermudan option pricing and the stationary Heston model.
 
-* **B.S. in Mathematics**, Aix-Marseille University, Sep 2011 to Jun 2014.
+* **Research Master in Probability and Finance** (Master El-Karoui, with honors), Sorbonne University in collaboration with École Polytechnique, September 2014 – June 2016.
 
- I spent the 2013-2014 academic year on exchange with the ERASMUS program in the Lund University's mathematics department, Lund, Sweden.
+* **Bachelor's degree in Mathematics** (with honors), Aix-Marseille University, September 2011 – June 2014.
 
 
+## Skills
+<!-- ====== -->
 
-## Programming Skills
+**Programming**
 
-* Python (Pytorch, Huggingface, Numpy, Pandas, ...)
+* Python (Pandas, Hugging Face, PyTorch, ONNX, NumPy, pytest, Pybind11, ...)
+* SQL (Redshift)
+* C++ (libraries built during the PhD)
+* Tools used often: Git, Airflow, S3
+* Basic knowledge: Java, Scala, Kafka, Docker, gRPC, Elasticsearch
 
-* C/C++
+**Languages**
 
-* Java
-
-* LaTeX
-
-* Scala
-
-* Matlab - Scilab
+* French: native
+* English: fluent
